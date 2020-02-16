@@ -76,7 +76,7 @@ public class ChatClient {
         try {
             Socket socket = new Socket(userNameIP[1], PORT);
             Scanner tempIn = new Scanner(socket.getInputStream());
-            if (!tempIn.nextLine().contains("SUBMITNAME")) {
+            if (!tempIn.nextLine().contains("SUBMITNAME") || !tempIn.nextLine().contains("REDIRECT")) {
                 makeServer(); //make your own server if the one entered doesn't exist
                 IPToConnectTo = "127.0.0.1"; //change the ip to connect to, to the localhost IP
             } //else, don't make your own server and join the IP entered.
