@@ -1,4 +1,5 @@
 package demothreeproj;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -20,14 +21,14 @@ import java.util.concurrent.*;
  * better logging. Another is to accept a lot of fun commands, like Slack.
  */
 public class ChatServer {
+
     private static final int PORT = 59002;
-    
+
     // All client names, so we can check for duplicates upon registration.
     private static Set<String> names = new HashSet<>();
 
     // The set of all the print writers for all the clients, used for broadcast.
     private static Set<PrintWriter> writers = new HashSet<>();
-
 
     public ChatServer() throws Exception {
         System.out.println("The chat server is running...");
@@ -63,7 +64,7 @@ public class ChatServer {
          * Services this thread's client by repeatedly requesting a screen name
          * until a unique one has been submitted, then acknowledges the name and
          * registers the output stream for the client in a global set, then
-         * repeatedly gets inputs and broadcasts them. 
+         * repeatedly gets inputs and broadcasts them.
          */
         public void run() {
             try {
@@ -117,10 +118,11 @@ public class ChatServer {
                 }
             }
         }
-        public void broadcastToAll(String str){
+
+        public void broadcastToAll(String str) {
             for (PrintWriter writer : writers) {
-                        writer.println(str);
-                    }
+                writer.println(str);
+            }
         }
     }
 }

@@ -83,9 +83,9 @@ public class ChatClient {
             //later this can contain an IF statement for if the person isn't the host but IS a member
         } catch (ConnectException ex) { //this checks if that IP accepts connections 
             System.out.println("Server IP not reachable");
-            makeServer(); 
+            makeServer();
             IPToConnectTo = "127.0.0.1";
-        } catch(Exception ex){
+        } catch (Exception ex) {
             System.out.println("Entered IP has wrong format");
             makeServer();
             IPToConnectTo = "127.0.0.1";
@@ -103,6 +103,19 @@ public class ChatClient {
             public void run() {
                 try {
                     ChatServer server = new ChatServer();
+                } catch (Exception ex) {
+                    Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+        t.start();
+    }
+
+    private void makeRedirectServer() {
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    RedirectServer server = new RedirectServer(serverAddress);
                 } catch (Exception ex) {
                     Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -161,7 +174,6 @@ public class ChatClient {
         //code below is to ask for username and IP
     }
 
-
     private void run() throws IOException {
         try {
 
@@ -174,6 +186,14 @@ public class ChatClient {
                 System.out.println(line);
                 if (line.startsWith("SUBMITNAME")) {
                     out.println(username);
+                } else if (line.startsWith("REDIRECT")) {
+                    //if the IP isn't the host it will tell us the host IP. Connect to this IP
+                    //and redefine socket, in and out 
+                    serverAddress = line.substring(9);
+                    socket = new Socket(serverAddress, PORT);
+                    in = new Scanner(socket.getInputStream());
+                    out = new PrintWriter(socket.getOutputStream(), true);
+                    makeRedirectServer();
                 } else if (line.startsWith("NAMEACCEPTED")) {
                     this.frame.setTitle("Spam - " + line.substring(13));
                     textField.setEditable(true);
