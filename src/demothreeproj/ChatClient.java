@@ -81,7 +81,7 @@ public class ChatClient {
                 in = new Scanner(socket.getInputStream());
                 out = new PrintWriter(socket.getOutputStream(), true);
                 makeRedirectServer();
-            } else if (line.contains("SUBMITNAME")) { //else, don't make your own server and join the IP entered.
+            } else if (!line.contains("SUBMITNAME")) { //else, don't make your own server and join the IP entered.
                 makeServer(); //make your own server if the one entered doesn't exist
                 IPToConnectTo = "127.0.0.1"; //change the ip to connect to, to the localhost IP
             }
