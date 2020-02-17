@@ -29,13 +29,11 @@ import javax.swing.JTextField;
 /**
  * A simple Swing-based client for the chat server. Graphically it is a frame
  * with a text field for entering messages and a textarea to see the whole
- * dialog.
- * test
- * The client follows the following Chat Protocol. When the server sends
- * "SUBMITNAME" the client replies with the desired screen name. The server will
- * keep sending "SUBMITNAME" requests as long as the client submits screen names
- * that are already in use. When the server sends a line beginning with
- * "NAMEACCEPTED" the client is now allowed to start sending the server
+ * dialog. test The client follows the following Chat Protocol. When the server
+ * sends "SUBMITNAME" the client replies with the desired screen name. The
+ * server will keep sending "SUBMITNAME" requests as long as the client submits
+ * screen names that are already in use. When the server sends a line beginning
+ * with "NAMEACCEPTED" the client is now allowed to start sending the server
  * arbitrary strings to be broadcast to all chatters connected to the server.
  * When the server sends a line beginning with "MESSAGE" then all characters
  * following this string should be displayed in its message area.
@@ -44,9 +42,9 @@ public class ChatClient {
 
     private static final int PORT = 59002;
 
-    String serverAddress;
-    Scanner in;
-    PrintWriter out;
+    static String serverAddress;
+    static Scanner in;
+    static PrintWriter out;
     JFrame frame = new JFrame("Spam");
     JTextField textField = new JTextField(50);
     String username;
@@ -76,10 +74,17 @@ public class ChatClient {
         try {
             Socket socket = new Socket(userNameIP[1], PORT);
             Scanner tempIn = new Scanner(socket.getInputStream());
-            if (!tempIn.nextLine().contains("SUBMITNAME") || !tempIn.nextLine().contains("REDIRECT")) {
+            String line = tempIn.nextLine();
+            if (line.contains("REDIRECT")) {
+                serverAddress = line.substring(9);
+                socket = new Socket(serverAddress, PORT);
+                in = new Scanner(socket.getInputStream());
+                out = new PrintWriter(socket.getOutputStream(), true);
+                makeRedirectServer();
+            } else if (line.contains("SUBMITNAME")) { //else, don't make your own server and join the IP entered.
                 makeServer(); //make your own server if the one entered doesn't exist
                 IPToConnectTo = "127.0.0.1"; //change the ip to connect to, to the localhost IP
-            } //else, don't make your own server and join the IP entered.
+            }
             //later this can contain an IF statement for if the person isn't the host but IS a member
         } catch (ConnectException ex) { //this checks if that IP accepts connections 
             System.out.println("Server IP not reachable");
@@ -111,7 +116,7 @@ public class ChatClient {
         t.start();
     }
 
-    private void makeRedirectServer() {
+    static private void makeRedirectServer() {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
