@@ -30,7 +30,7 @@ import javax.swing.JTextField;
  * A simple Swing-based client for the chat server. Graphically it is a frame
  * with a text field for entering messages and a textarea to see the whole
  * dialog.
- *
+ * test
  * The client follows the following Chat Protocol. When the server sends
  * "SUBMITNAME" the client replies with the desired screen name. The server will
  * keep sending "SUBMITNAME" requests as long as the client submits screen names
