@@ -70,9 +70,10 @@ public class ChatClient {
 
         String[] userNameIP = startPopup();
         String IPToConnectTo = userNameIP[1];
+        String username = userNameIP[0];
 
         try {
-            Socket socket = new Socket(userNameIP[1], PORT);
+            Socket socket = new Socket(IPToConnectTo, PORT);
             Scanner tempIn = new Scanner(socket.getInputStream());
             String line = tempIn.nextLine();
             if (line.contains("REDIRECT")) {
@@ -80,12 +81,16 @@ public class ChatClient {
                 socket = new Socket(serverAddress, PORT);
                 in = new Scanner(socket.getInputStream());
                 out = new PrintWriter(socket.getOutputStream(), true);
+                serverAddress = IPToConnectTo;
+                makeRedirectServer();
+            } else if(line.contains("SUBMITNAME")){
+                serverAddress = IPToConnectTo;
                 makeRedirectServer();
             } else if (!line.contains("SUBMITNAME")) { //else, don't make your own server and join the IP entered.
                 makeServer(); //make your own server if the one entered doesn't exist
                 IPToConnectTo = "127.0.0.1"; //change the ip to connect to, to the localhost IP
             }
-            //later this can contain an IF statement for if the person isn't the host but IS a member
+            
         } catch (ConnectException ex) { //this checks if that IP accepts connections 
             System.out.println("Server IP not reachable");
             makeServer();
@@ -95,8 +100,9 @@ public class ChatClient {
             makeServer();
             IPToConnectTo = "127.0.0.1";
         }
-
-        ChatClient client = new ChatClient(userNameIP[0], IPToConnectTo);
+        
+        //makeRedirectServer();
+        ChatClient client = new ChatClient(username, IPToConnectTo);
         client.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         client.frame.setVisible(true);
         client.run();
@@ -175,8 +181,6 @@ public class ChatClient {
                 textField.setText("");
             }
         });
-
-        //code below is to ask for username and IP
     }
 
     private void run() throws IOException {

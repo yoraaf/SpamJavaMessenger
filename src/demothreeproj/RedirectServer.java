@@ -27,9 +27,8 @@ public class RedirectServer {
     private static String IP;
 
     public RedirectServer(String arg) throws Exception {
+        System.out.println("Redirect server is running");
         IP = arg;
-
-        System.out.println("The chat server is running...");
         ExecutorService pool = Executors.newFixedThreadPool(500);
         try (ServerSocket listener = new ServerSocket(PORT)) {
             while (true) {
