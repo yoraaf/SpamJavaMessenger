@@ -27,7 +27,7 @@ public class RedirectServer {
     private static String IP;
 
     public RedirectServer(String arg) throws Exception {
-        System.out.println("Redirect server is running");
+        System.out.println("Redirect server is running to: "+arg);
         IP = arg;
         ExecutorService pool = Executors.newFixedThreadPool(500);
         try (ServerSocket listener = new ServerSocket(PORT)) {

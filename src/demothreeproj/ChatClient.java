@@ -81,7 +81,6 @@ public class ChatClient {
                 socket = new Socket(serverAddress, PORT);
                 in = new Scanner(socket.getInputStream());
                 out = new PrintWriter(socket.getOutputStream(), true);
-                serverAddress = IPToConnectTo;
                 makeRedirectServer();
             } else if(line.contains("SUBMITNAME")){
                 serverAddress = IPToConnectTo;
@@ -202,7 +201,7 @@ public class ChatClient {
                     socket = new Socket(serverAddress, PORT);
                     in = new Scanner(socket.getInputStream());
                     out = new PrintWriter(socket.getOutputStream(), true);
-                    makeRedirectServer();
+                    //makeRedirectServer();
                 } else if (line.startsWith("NAMEACCEPTED")) {
                     this.frame.setTitle("Spam - " + line.substring(13));
                     textField.setEditable(true);
