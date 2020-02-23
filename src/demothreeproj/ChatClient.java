@@ -47,6 +47,8 @@ public class ChatClient {
     private Scanner in;
     private PrintWriter out;
     private JFrame frame = new JFrame("Spam");
+    private JFrame membersListFrame = new JFrame("Members");
+    private JTextArea membersListText = new JTextArea(16, 20);
     private JTextField textField = new JTextField(50);
     private String username;
     //String IPToConnectTo;
@@ -97,6 +99,7 @@ public class ChatClient {
         serverAddress = IPToConnectTo;
         textField.setFont(MainClass.chatDefFont);
         messageArea.setFont(MainClass.chatDefFont);
+        membersListFrame.setFont(MainClass.chatDefFont);
         System.out.println("test");
         textField.setEditable(false);
         messageArea.setEditable(false);
@@ -105,6 +108,13 @@ public class ChatClient {
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
         frame.pack();
         frame.setIconImage(MainClass.iconImage.getImage());
+        
+        membersListText.setEditable(false);
+        membersListFrame.add(membersListText);
+        membersListFrame.setVisible(true);
+        membersListFrame.pack();
+        membersListFrame.setLocation(frame.getX()+frame.getWidth(), frame.getY()); //make it appear next to the chat window instaed of behind
+        membersListFrame.setIconImage(MainClass.iconImage.getImage());
 
         textField.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
