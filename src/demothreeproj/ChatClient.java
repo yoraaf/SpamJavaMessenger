@@ -42,15 +42,15 @@ public class ChatClient {
 
     private static final int PORT = 59002;
 
-    static String serverAddress;
-    static Scanner in;
-    static PrintWriter out;
-    JFrame frame = new JFrame("Spam");
-    JTextField textField = new JTextField(50);
-    String username;
+    private String serverAddress;
+    private Scanner in;
+    private PrintWriter out;
+    private JFrame frame = new JFrame("Spam");
+    private JTextField textField = new JTextField(50);
+    private String username;
     //String IPToConnectTo;
 
-    JTextArea messageArea = new JTextArea(16, 50);
+    private JTextArea messageArea = new JTextArea(16, 50);
 
     /**
      * Constructs the client by laying out the GUI and registering a listener
@@ -59,18 +59,12 @@ public class ChatClient {
      * initially NOT editable, and only becomes editable AFTER the client
      * receives the NAMEACCEPTED message from the server.
      */
-    Font defFont = new Font("Lucida Sans Typewriter", PLAIN, 15);
 
-    public static String[] IPs = new String[]{"127.0.0.1"}; //this list will contain all IPs that the chat client will try to connect to
 
-    public ImageIcon iconImage = new ImageIcon(getClass().getResource("img/spam.png"));
-    //self made icon
-
-    public static void main(String[] args) throws Exception {
-
+    public ChatClient() {
         String[] userNameIP = startPopup();
         String IPToConnectTo = userNameIP[1];
-        String username = userNameIP[0];
+        username = userNameIP[0];
 
         try {
             Socket socket = new Socket(IPToConnectTo, PORT);
@@ -82,14 +76,14 @@ public class ChatClient {
                 in = new Scanner(socket.getInputStream());
                 out = new PrintWriter(socket.getOutputStream(), true);
                 makeRedirectServer();
-            } else if(line.contains("SUBMITNAME")){
+            } else if (line.contains("SUBMITNAME")) {
                 serverAddress = IPToConnectTo;
                 makeRedirectServer();
             } else if (!line.contains("SUBMITNAME")) { //else, don't make your own server and join the IP entered.
                 makeServer(); //make your own server if the one entered doesn't exist
                 IPToConnectTo = "127.0.0.1"; //change the ip to connect to, to the localhost IP
             }
-            
+
         } catch (ConnectException ex) { //this checks if that IP accepts connections 
             System.out.println("Server IP not reachable");
             makeServer();
@@ -99,17 +93,34 @@ public class ChatClient {
             makeServer();
             IPToConnectTo = "127.0.0.1";
         }
-        
-        //makeRedirectServer();
-        ChatClient client = new ChatClient(username, IPToConnectTo);
-        client.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        client.frame.setVisible(true);
-        client.run();
+        serverAddress = IPToConnectTo;
+        textField.setFont(MainClass.chatDefFont);
+        messageArea.setFont(MainClass.chatDefFont);
+        System.out.println("test");
+        textField.setEditable(false);
+        messageArea.setEditable(false);
+        frame.getContentPane().add(textField, BorderLayout.SOUTH);
+        frame.getContentPane().add(new JScrollPane(messageArea), BorderLayout.CENTER);
+        frame.pack();
+        frame.setIconImage(MainClass.iconImage.getImage());
 
+        textField.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                out.println(textField.getText());
+                textField.setText("");
+            }
+        });
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+        try {
+            run();
+        } catch (Exception ex) {
+            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
-    private static void makeServer() {
-        Thread t = new Thread(new Runnable() {
+    private void makeServer() {
+        Thread t = new Thread(new Runnable() { //instead of passing this a runnable, we're defining it inside the parameter 
             public void run() {
                 try {
                     ChatServer server = new ChatServer();
@@ -121,7 +132,7 @@ public class ChatClient {
         t.start();
     }
 
-    static private void makeRedirectServer() {
+    private void makeRedirectServer() {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
@@ -159,27 +170,6 @@ public class ChatClient {
         }
         return new String[]{username, IPToConnectTo};
         // Send on enter then clear to prepare for next message
-    }
-
-    public ChatClient(String user, String IP) {
-        username = user;
-        serverAddress = IP;
-        textField.setFont(defFont);
-        messageArea.setFont(defFont);
-        System.out.println("test");
-        textField.setEditable(false);
-        messageArea.setEditable(false);
-        frame.getContentPane().add(textField, BorderLayout.SOUTH);
-        frame.getContentPane().add(new JScrollPane(messageArea), BorderLayout.CENTER);
-        frame.pack();
-        frame.setIconImage(iconImage.getImage());
-
-        textField.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                out.println(textField.getText());
-                textField.setText("");
-            }
-        });
     }
 
     private void run() throws IOException {
