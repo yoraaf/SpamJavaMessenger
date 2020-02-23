@@ -22,6 +22,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -51,6 +52,7 @@ public class ChatClient {
     //String IPToConnectTo;
 
     private JTextArea messageArea = new JTextArea(16, 50);
+    private JScrollPane scrollPane;
 
     /**
      * Constructs the client by laying out the GUI and registering a listener
@@ -59,7 +61,6 @@ public class ChatClient {
      * initially NOT editable, and only becomes editable AFTER the client
      * receives the NAMEACCEPTED message from the server.
      */
-
 
     public ChatClient() {
         String[] userNameIP = startPopup();
@@ -100,7 +101,8 @@ public class ChatClient {
         textField.setEditable(false);
         messageArea.setEditable(false);
         frame.getContentPane().add(textField, BorderLayout.SOUTH);
-        frame.getContentPane().add(new JScrollPane(messageArea), BorderLayout.CENTER);
+        scrollPane = new JScrollPane(messageArea);
+        frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
         frame.pack();
         frame.setIconImage(MainClass.iconImage.getImage());
 
@@ -197,6 +199,8 @@ public class ChatClient {
                     textField.setEditable(true);
                 } else if (line.startsWith("MESSAGE")) {
                     messageArea.append(line.substring(8) + "\n");
+                    JScrollBar vertical = scrollPane.getVerticalScrollBar();
+                    vertical.setValue(vertical.getMaximum());
                 }
             }
         } finally {
