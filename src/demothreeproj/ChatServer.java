@@ -8,7 +8,8 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.concurrent.*;
-/* */ 
+
+/* */
 /**
  * A multithreaded chat room server. When a client connects the server requests
  * a screen name by sending the client the text "SUBMITNAME", and keeps
@@ -92,7 +93,8 @@ public class ChatServer {
                 out.println("NAMEACCEPTED " + name);
                 broadcastToAll("MESSAGE " + name + " has joined");
                 writers.add(out);
-
+                updateMembers();
+                
                 // Accept messages from this client and broadcast them.
                 while (true) {
                     String input = in.nextLine();
@@ -111,6 +113,7 @@ public class ChatServer {
                     System.out.println(name + " is leaving");
                     names.remove(name);
                     broadcastToAll("MESSAGE " + name + " has left");
+                    updateMembers();
                 }
                 try {
                     socket.close();
@@ -123,6 +126,14 @@ public class ChatServer {
             for (PrintWriter writer : writers) {
                 writer.println(str);
             }
+        }
+
+        private void updateMembers() {
+            String membersString = "";
+            for (String member : names) {
+                membersString += member + ";";
+            }
+            broadcastToAll("MEMBERS " + membersString);
         }
     }
 }

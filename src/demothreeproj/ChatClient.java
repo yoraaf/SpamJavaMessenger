@@ -211,12 +211,22 @@ public class ChatClient {
                     messageArea.append(line.substring(8) + "\n");
                     JScrollBar vertical = scrollPane.getVerticalScrollBar();
                     vertical.setValue(vertical.getMaximum());
+                } else if(line.startsWith("MEMBERS")){
+                    updateMemberList(line.substring(8));
                 }
             }
         } finally {
             frame.setVisible(false);
             frame.dispose();
         }
+    }
+    private void updateMemberList(String str){
+        String[] members =  str.split(";");
+        String listWithReturn = "";
+        for(String member : members ){
+            listWithReturn += "\n"+member;
+        }
+        membersListText.setText(listWithReturn);
     }
 
 }
