@@ -2,8 +2,13 @@ package demothreeproj;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
@@ -23,7 +28,8 @@ import java.util.concurrent.*;
  * better logging. Another is to accept a lot of fun commands, like Slack.
  */
 public class ChatServer {
-
+    private static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");  
+    
     private static final int PORT = 59002;
     private static ArrayList<String> userData = new ArrayList<String>();
 
@@ -80,7 +86,7 @@ public class ChatServer {
                 while (true) {
                     out.println("SUBMITNAME");
                     name = in.nextLine();
-                    if (name == null) {
+                    if (name == null ||name.isEmpty()) {
                         return;
                     }
                     synchronized (names) {
@@ -91,13 +97,16 @@ public class ChatServer {
                     }
                 }
                 clientIP = socket.getInetAddress().getHostAddress();
-                clientPort = socket.getPort();
+                if(clientIP.equals("127.0.0.1")){
+                    clientIP = InetAddress.getLocalHost().getHostAddress();
+                }
+                clientPort = socket.getLocalPort();
                 userData.add(name + ";" + clientIP + ";" + clientPort);
                 // Now that a successful name has been chosen, add the socket's print writer
                 // to the set of all writers so this client can receive broadcast messages.
                 // But BEFORE THAT, let everyone else know that the new person has joined!
                 out.println("NAMEACCEPTED " + name);
-                broadcastToAll("MESSAGE " + name + " has joined");
+                broadcastToAll("MESSAGE " +getTime()+ name + " has joined");
                 writers.add(out);
                 updateMembers();
 
@@ -107,7 +116,7 @@ public class ChatServer {
 //                    if (input.toLowerCase().startsWith("/quit")) {
 //                        return;
 //                    }
-                    broadcastToAll("MESSAGE " + name + ": " + input);
+                    broadcastToAll("MESSAGE " +getTime()+ name + ": " + input);
                 }
             } catch (Exception e) {
                 System.out.println(e);
@@ -124,7 +133,7 @@ public class ChatServer {
                             break;
                         }
                     }
-                    broadcastToAll("MESSAGE " + name + " has left");
+                    broadcastToAll("MESSAGE "+getTime() + name + " has left");
                     updateMembers();
                 }
                 try {
@@ -143,12 +152,15 @@ public class ChatServer {
         private void updateMembers() {
             String membersString = "";
             for (String member : userData) {
-                membersString += member + ";";
+                membersString += member + "~";
 
             }
             System.out.println("[user data]");
             System.out.println(userData);
             broadcastToAll("MEMBERS " + membersString);
+        }
+        private String getTime(){
+            return "["+dtf.format(LocalTime.now())+"] ";
         }
     }
 }

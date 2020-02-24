@@ -65,7 +65,6 @@ public class ChatClient {
      * initially NOT editable, and only becomes editable AFTER the client
      * receives the NAMEACCEPTED message from the server.
      */
-
     public ChatClient() {
         String[] userNameIP = startPopup();
         String IPToConnectTo = userNameIP[1];
@@ -73,7 +72,7 @@ public class ChatClient {
 
         try {
             localIP = InetAddress.getLocalHost().getHostAddress();
-            
+
             Socket socket = new Socket(IPToConnectTo, PORT);
             Scanner tempIn = new Scanner(socket.getInputStream());
             String line = tempIn.nextLine();
@@ -112,12 +111,12 @@ public class ChatClient {
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
         frame.pack();
         frame.setIconImage(MainClass.iconImage.getImage());
-        
+
         membersListText.setEditable(false);
-        membersListFrame.add(membersListText);
+        membersListFrame.add(new JScrollPane(membersListText));
         membersListFrame.setVisible(true);
         membersListFrame.pack();
-        membersListFrame.setLocation(frame.getX()+frame.getWidth(), frame.getY()); //make it appear next to the chat window instaed of behind
+        membersListFrame.setLocation(frame.getX() + frame.getWidth(), frame.getY()); //make it appear next to the chat window instaed of behind
         membersListFrame.setIconImage(MainClass.iconImage.getImage());
 
         textField.addActionListener(new ActionListener() {
@@ -136,6 +135,7 @@ public class ChatClient {
     }
 
     private void makeServer() {
+        
         Thread t = new Thread(new Runnable() { //instead of passing this a runnable, we're defining it inside the parameter 
             public void run() {
                 try {
@@ -146,6 +146,7 @@ public class ChatClient {
             }
         });
         t.start();
+        JOptionPane.showMessageDialog(null, "You are the coordinator");
     }
 
     private void makeRedirectServer() {
@@ -173,16 +174,23 @@ public class ChatClient {
         inputFields.add(usernameField);
         inputFields.add(new JLabel("Server IP: "));
         inputFields.add(IPField);
-
-        int result = JOptionPane.showConfirmDialog(null, inputFields,
-                "Please enter username and IP", JOptionPane.PLAIN_MESSAGE);
-        if (result == JOptionPane.OK_OPTION) {
-            username = usernameField.getText();
-            IPToConnectTo = IPField.getText();
-            System.out.println("username: " + usernameField.getText());
-            System.out.println("IP: " + IPField.getText());
-        } else if (result == -1) {
-            System.exit(0);
+        while (true) {
+            int result = JOptionPane.showConfirmDialog(null, inputFields,
+                    "Please enter username and IP", JOptionPane.PLAIN_MESSAGE);
+            if (result == JOptionPane.OK_OPTION) {
+                username = usernameField.getText();
+                IPToConnectTo = IPField.getText();
+                System.out.println("username: " + usernameField.getText());
+                System.out.println("IP: " + IPField.getText());
+                if(username == null || username.isEmpty() || username.contains(";") || username.contains("~")){
+                    JOptionPane.showMessageDialog(null, "Please enter a name that doesn't contain '~' or ';'");
+                }else{
+                    break;
+                }
+            } else if (result == JOptionPane.CLOSED_OPTION) {
+                System.exit(0);
+                break;
+            }
         }
         return new String[]{username, IPToConnectTo};
         // Send on enter then clear to prepare for next message
@@ -209,27 +217,29 @@ public class ChatClient {
                     out = new PrintWriter(socket.getOutputStream(), true);
                     //makeRedirectServer();
                 } else if (line.startsWith("NAMEACCEPTED")) {
-                    this.frame.setTitle("Spam - " + line.substring(13)+" "+localIP);
+                    this.frame.setTitle("Spam - " + line.substring(13) + " " + localIP);
                     textField.setEditable(true);
                 } else if (line.startsWith("MESSAGE")) {
                     messageArea.append(line.substring(8) + "\n");
                     JScrollBar vertical = scrollPane.getVerticalScrollBar();
                     vertical.setValue(vertical.getMaximum());
-                } else if(line.startsWith("MEMBERS")){
+                } else if (line.startsWith("MEMBERS")) {
                     updateMemberList(line.substring(8));
                 }
             }
         } finally {
             frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-            
+
         }
     }
-    private void updateMemberList(String str){
-        String[] members =  str.split(";");
+
+    private void updateMemberList(String str) {
+        String[] members = str.split("~");
         String listWithReturn = "";
-        for(String member : members ){
-            listWithReturn += member+"\n";
+        for (String member : members) {
+            listWithReturn += member + "\n";
         }
+        listWithReturn=listWithReturn.replace(";", "    ");
         membersListText.setText(listWithReturn);
     }
 
