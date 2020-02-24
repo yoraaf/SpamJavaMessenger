@@ -12,6 +12,7 @@ import java.awt.Font;
 import static java.awt.Font.PLAIN;
 import java.awt.GridLayout;
 import java.awt.TextField;
+import java.awt.event.WindowEvent;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -55,6 +56,7 @@ public class ChatClient {
 
     private JTextArea messageArea = new JTextArea(16, 50);
     private JScrollPane scrollPane;
+    private String localIP = "";
 
     /**
      * Constructs the client by laying out the GUI and registering a listener
@@ -70,6 +72,8 @@ public class ChatClient {
         username = userNameIP[0];
 
         try {
+            localIP = InetAddress.getLocalHost().getHostAddress();
+            
             Socket socket = new Socket(IPToConnectTo, PORT);
             Scanner tempIn = new Scanner(socket.getInputStream());
             String line = tempIn.nextLine();
@@ -205,7 +209,7 @@ public class ChatClient {
                     out = new PrintWriter(socket.getOutputStream(), true);
                     //makeRedirectServer();
                 } else if (line.startsWith("NAMEACCEPTED")) {
-                    this.frame.setTitle("Spam - " + line.substring(13));
+                    this.frame.setTitle("Spam - " + line.substring(13)+" "+localIP);
                     textField.setEditable(true);
                 } else if (line.startsWith("MESSAGE")) {
                     messageArea.append(line.substring(8) + "\n");
@@ -216,15 +220,15 @@ public class ChatClient {
                 }
             }
         } finally {
-            frame.setVisible(false);
-            frame.dispose();
+            frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+            
         }
     }
     private void updateMemberList(String str){
         String[] members =  str.split(";");
         String listWithReturn = "";
         for(String member : members ){
-            listWithReturn += "\n"+member;
+            listWithReturn += member+"\n";
         }
         membersListText.setText(listWithReturn);
     }
