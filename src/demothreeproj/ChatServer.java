@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -24,6 +25,7 @@ import java.util.concurrent.*;
 public class ChatServer {
 
     private static final int PORT = 59002;
+    private static ArrayList<String> userData = new ArrayList<String>();
 
     // All client names, so we can check for duplicates upon registration.
     private static Set<String> names = new HashSet<>();
@@ -50,6 +52,8 @@ public class ChatServer {
         private Socket socket;
         private Scanner in;
         private PrintWriter out;
+        private String clientIP;
+        private int clientPort;
 
         /**
          * Constructs a handler thread, squirreling away the socket. All the
@@ -86,7 +90,9 @@ public class ChatServer {
                         }
                     }
                 }
-
+                clientIP = socket.getInetAddress().getHostAddress();
+                clientPort = socket.getPort();
+                userData.add(name + ";" + clientIP + ";" + clientPort);
                 // Now that a successful name has been chosen, add the socket's print writer
                 // to the set of all writers so this client can receive broadcast messages.
                 // But BEFORE THAT, let everyone else know that the new person has joined!
@@ -94,7 +100,7 @@ public class ChatServer {
                 broadcastToAll("MESSAGE " + name + " has joined");
                 writers.add(out);
                 updateMembers();
-                
+
                 // Accept messages from this client and broadcast them.
                 while (true) {
                     String input = in.nextLine();
@@ -112,6 +118,12 @@ public class ChatServer {
                 if (name != null) {
                     System.out.println(name + " is leaving");
                     names.remove(name);
+                    for (String member : userData) {
+                        if(member.contains(name)){
+                            userData.remove(member);
+                            break;
+                        }
+                    }
                     broadcastToAll("MESSAGE " + name + " has left");
                     updateMembers();
                 }
@@ -130,9 +142,12 @@ public class ChatServer {
 
         private void updateMembers() {
             String membersString = "";
-            for (String member : names) {
+            for (String member : userData) {
                 membersString += member + ";";
+
             }
+            System.out.println("[user data]");
+            System.out.println(userData);
             broadcastToAll("MEMBERS " + membersString);
         }
     }
