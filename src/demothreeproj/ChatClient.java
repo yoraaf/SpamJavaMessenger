@@ -89,7 +89,7 @@ public class ChatClient {
                 socket = new Socket(serverAddress, PORT);
                 in = new Scanner(socket.getInputStream());
                 out = new PrintWriter(socket.getOutputStream(), true);
-                makeRedirectServer();
+                //makeRedirectServer();
             } else if (line.contains("SUBMITNAME")) {
                 serverAddress = IPToConnectTo;
                 //makeRedirectServer();
@@ -232,7 +232,7 @@ public class ChatClient {
                     socket = new Socket(serverAddress, PORT);
                     in = new Scanner(socket.getInputStream());
                     out = new PrintWriter(socket.getOutputStream(), true);
-                    makeRedirectServer();
+                    //makeRedirectServer();
                 } else if (line.startsWith("NAMEACCEPTED")) {
                     this.frame.setTitle("Spam - " + line.substring(13) + " " + localIP);
                     textField.setEditable(true);
