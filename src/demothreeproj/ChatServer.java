@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -35,6 +36,7 @@ public class ChatServer {
 
     // All client names, so we can check for duplicates upon registration.
     private static Set<String> names = new HashSet<>();
+    private static int hostPositionInArray = 0;
 
     // The set of all the print writers for all the clients, used for broadcast.
     private static Set<PrintWriter> writers = new HashSet<>();
@@ -101,6 +103,7 @@ public class ChatServer {
                 if(clientIP.equals("127.0.0.1")){
                     clientIP = InetAddress.getLocalHost().getHostAddress();
                     userData.add("(C) "+name + ";" + clientIP + ";" + clientPort);
+                    hostPositionInArray = userData.size()-1;
                 } else{
                     userData.add(name + ";" + clientIP + ";" + clientPort);
                 }
@@ -153,6 +156,7 @@ public class ChatServer {
         }
 
         private void updateMembers() {
+            Collections.swap(userData, hostPositionInArray, 0);
             String membersString = "";
             for (String member : userData) {
                 membersString += member + "~";
