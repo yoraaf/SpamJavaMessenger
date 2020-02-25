@@ -64,6 +64,7 @@ public class ChatClient {
     private ArrayList<String> memberIPs = new ArrayList<>();
     private String[] ipArray;
     private RedirectServer redirectServer;
+    private boolean isHost = false;
 
     /**
      * Constructs the client by laying out the GUI and registering a listener
@@ -91,20 +92,25 @@ public class ChatClient {
                 makeRedirectServer();
             } else if (line.contains("SUBMITNAME")) {
                 serverAddress = IPToConnectTo;
-                makeRedirectServer();
+                //makeRedirectServer();
             } else if (!line.contains("SUBMITNAME")) { //else, don't make your own server and join the IP entered.
+                isHost = true;
                 makeServer(); //make your own server if the one entered doesn't exist
                 IPToConnectTo = "127.0.0.1"; //change the ip to connect to, to the localhost IP
             }
 
         } catch (ConnectException ex) { //this checks if that IP accepts connections 
+            isHost = true;
             System.out.println("Server IP not reachable");
             makeServer();
             IPToConnectTo = "127.0.0.1";
+
         } catch (Exception ex) {
+            isHost = true;
             System.out.println("Entered IP has wrong format");
             makeServer();
             IPToConnectTo = "127.0.0.1";
+
         }
         serverAddress = IPToConnectTo;
         textField.setFont(MainClass.chatDefFont);
@@ -215,6 +221,9 @@ public class ChatClient {
                 String line = in.nextLine();
                 System.out.println(line);
                 if (line.startsWith("SUBMITNAME")) {
+                    if (!isHost) {
+                        makeRedirectServer();
+                    }
                     out.println(username);
                 } else if (line.startsWith("REDIRECT")) {
                     //if the IP isn't the host it will tell us the host IP. Connect to this IP
@@ -223,7 +232,7 @@ public class ChatClient {
                     socket = new Socket(serverAddress, PORT);
                     in = new Scanner(socket.getInputStream());
                     out = new PrintWriter(socket.getOutputStream(), true);
-                    //makeRedirectServer();
+                    makeRedirectServer();
                 } else if (line.startsWith("NAMEACCEPTED")) {
                     this.frame.setTitle("Spam - " + line.substring(13) + " " + localIP);
                     textField.setEditable(true);
@@ -242,7 +251,8 @@ public class ChatClient {
             System.out.println("");
             for (int i = 1; i < ipArray.length; i++) {
                 String IPToConnectTo = ipArray[i];
-                if(ipArray[i].equals(localIP)){
+                if (ipArray[i].equals(localIP)) {
+                    isHost = true;
                     IPToConnectTo = "127.0.0.1";
                     makeServer();
                 }
