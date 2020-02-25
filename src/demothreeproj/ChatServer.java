@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -15,6 +16,8 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.concurrent.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /* */
 /**
@@ -140,7 +143,11 @@ public class ChatServer {
                         }
                     }
                     broadcastToAll("MESSAGE "+getTime() + name + " has left");
-                    updateMembers();
+                    try {
+                        updateMembers();
+                    } catch (UnknownHostException ex) {
+                        Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
                 try {
                     socket.close();
@@ -155,8 +162,15 @@ public class ChatServer {
             }
         }
 
-        private void updateMembers() {
-            Collections.swap(userData, hostPositionInArray, 0);
+        private void updateMembers() throws UnknownHostException {
+            String serverIP = InetAddress.getLocalHost().getHostAddress();
+            for(int i = 0; i<userData.size();i++){
+                if(userData.get(i).contains(serverIP)){
+                    Collections.swap(userData, i, 0);
+                    break;
+                }
+            }
+            //Collections.swap(userData, hostPositionInArray, 0);
             String membersString = "";
             for (String member : userData) {
                 membersString += member + "~";

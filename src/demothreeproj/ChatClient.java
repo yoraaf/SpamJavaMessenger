@@ -18,6 +18,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.SocketOptions;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -100,12 +101,14 @@ public class ChatClient {
             }
 
         } catch (ConnectException ex) { //this checks if that IP accepts connections 
+            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
             isHost = true;
             System.out.println("Server IP not reachable");
             makeServer();
             IPToConnectTo = "127.0.0.1";
-
+            
         } catch (Exception ex) {
+            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
             isHost = true;
             System.out.println("Entered IP has wrong format");
             makeServer();
@@ -229,9 +232,10 @@ public class ChatClient {
                     //if the IP isn't the host it will tell us the host IP. Connect to this IP
                     //and redefine socket, in and out 
                     serverAddress = line.substring(9);
-                    socket = new Socket(serverAddress, PORT);
-                    in = new Scanner(socket.getInputStream());
-                    out = new PrintWriter(socket.getOutputStream(), true);
+//                    socket = new Socket(serverAddress, PORT);
+//                    in = new Scanner(socket.getInputStream());
+//                    out = new PrintWriter(socket.getOutputStream(), true);
+                    run();
                     //makeRedirectServer();
                 } else if (line.startsWith("NAMEACCEPTED")) {
                     this.frame.setTitle("Spam - " + line.substring(13) + " " + localIP);
@@ -256,9 +260,9 @@ public class ChatClient {
                     IPToConnectTo = "127.0.0.1";
                     makeServer();
                 }
-                TimeUnit.SECONDS.sleep(1);
+                
                 Socket newSocket = new Socket();
-                newSocket.setSoTimeout(1000);
+                newSocket.setSoTimeout(6000);
                 newSocket.connect(new InetSocketAddress(IPToConnectTo, PORT), 2000);
                 Scanner tempIn = new Scanner(newSocket.getInputStream());
                 if (tempIn.hasNextLine()) {
