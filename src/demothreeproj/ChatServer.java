@@ -97,11 +97,14 @@ public class ChatServer {
                     }
                 }
                 clientIP = socket.getInetAddress().getHostAddress();
+                clientPort = socket.getLocalPort();
                 if(clientIP.equals("127.0.0.1")){
                     clientIP = InetAddress.getLocalHost().getHostAddress();
+                    userData.add("(C) "+name + ";" + clientIP + ";" + clientPort);
+                } else{
+                    userData.add(name + ";" + clientIP + ";" + clientPort);
                 }
-                clientPort = socket.getLocalPort();
-                userData.add(name + ";" + clientIP + ";" + clientPort);
+                
                 // Now that a successful name has been chosen, add the socket's print writer
                 // to the set of all writers so this client can receive broadcast messages.
                 // But BEFORE THAT, let everyone else know that the new person has joined!
@@ -155,8 +158,7 @@ public class ChatServer {
                 membersString += member + "~";
 
             }
-            System.out.println("[user data]");
-            System.out.println(userData);
+
             broadcastToAll("MEMBERS " + membersString);
         }
         private String getTime(){

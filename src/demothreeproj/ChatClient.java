@@ -16,6 +16,7 @@ import java.awt.event.WindowEvent;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -57,7 +58,10 @@ public class ChatClient {
     private JTextArea messageArea = new JTextArea(16, 50);
     private JScrollPane scrollPane;
     private String localIP = "";
-
+    private ArrayList<String> memberIPs = new ArrayList<>();
+    private String[] ipArray;
+    private RedirectServer redirectServer;
+    
     /**
      * Constructs the client by laying out the GUI and registering a listener
      * with the textfield so that pressing Return in the listener sends the
@@ -102,7 +106,7 @@ public class ChatClient {
         serverAddress = IPToConnectTo;
         textField.setFont(MainClass.chatDefFont);
         messageArea.setFont(MainClass.chatDefFont);
-        membersListFrame.setFont(MainClass.chatDefFont);
+        membersListFrame.setFont(MainClass.listDefFont);
         System.out.println("test");
         textField.setEditable(false);
         messageArea.setEditable(false);
@@ -115,7 +119,7 @@ public class ChatClient {
         membersListText.setEditable(false);
         membersListFrame.add(new JScrollPane(membersListText));
         membersListFrame.setVisible(true);
-        membersListFrame.pack();
+        membersListFrame.setSize(400, frame.getHeight());
         membersListFrame.setLocation(frame.getX() + frame.getWidth(), frame.getY()); //make it appear next to the chat window instaed of behind
         membersListFrame.setIconImage(MainClass.iconImage.getImage());
 
@@ -153,7 +157,7 @@ public class ChatClient {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    RedirectServer server = new RedirectServer(serverAddress);
+                    redirectServer = new RedirectServer(serverAddress);
                 } catch (Exception ex) {
                     Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -228,19 +232,27 @@ public class ChatClient {
                 }
             }
         } finally {
-            frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-
+            //frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+            
+            RedirectServer.closeServer();
+            System.out.println("");
         }
     }
 
     private void updateMemberList(String str) {
         String[] members = str.split("~");
         String listWithReturn = "";
-        for (String member : members) {
-            listWithReturn += member + "\n";
+        ipArray = new String[members.length];
+        
+        for (int i =0;i<members.length;i++) {
+            ipArray[i] = members[i].split(";")[1]; //get the i-th member, split this, and get the second element, which is the IP
+            listWithReturn += members[i] + "\n";
+            System.out.println(i+": "+ipArray[i]);
         }
+        
         listWithReturn=listWithReturn.replace(";", "    ");
         membersListText.setText(listWithReturn);
+        membersListText.setFont(MainClass.listDefFont);
     }
 
 }

@@ -3,10 +3,10 @@
  */
 package demothreeproj;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,17 +25,42 @@ public class RedirectServer {
 
     private static final int PORT = 59002;
     private static String IP;
+    private static boolean serverRunning = true;
+    private static ServerSocket listener;
+    private static RedirectServer thing;
 
-    public RedirectServer(String arg) throws Exception {
-        System.out.println("Redirect server is running to: "+arg);
+    public RedirectServer(String arg) {
+        thing = this;
+        System.out.println("Redirect server is running to: " + arg);
         IP = arg;
         ExecutorService pool = Executors.newFixedThreadPool(500);
-        try (ServerSocket listener = new ServerSocket(PORT)) {
-            while (true) {
-                pool.execute(new Handler(listener.accept()));
+        try {
+            listener = new ServerSocket(PORT);
+            while (serverRunning) {
+                try {
+                    pool.execute(new Handler(listener.accept()));
+                } catch (SocketException e) {
+                }
             }
+
+        } catch (Exception ex) {
+            Logger.getLogger(RedirectServer.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+
+    public static void closeServer() {
+        serverRunning = false;
+        try {
+            listener.close();
+        } catch (Exception ex) {
+
+        }
+        System.out.println("Fuck this");
+
+    }
+
+    public void closeThing() {
     }
 
     private static class Handler implements Runnable {
@@ -53,12 +78,12 @@ public class RedirectServer {
             try {
                 in = new Scanner(socket.getInputStream());
                 out = new PrintWriter(socket.getOutputStream(), true);
-                
-                out.println("REDIRECT "+IP);
+
+                out.println("REDIRECT " + IP);
             } catch (Exception e) {
-                 System.out.println(e);
+                System.out.println(e);
             }
-            
+
         }
     }
 
