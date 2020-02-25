@@ -64,7 +64,7 @@ public class ChatClient {
     private String localIP = "";
     private ArrayList<String> memberIPs = new ArrayList<>();
     private String[] ipArray;
-    private RedirectServer redirectServer;
+    //private RedirectServer redirectServer;
     private boolean isHost = false;
 
     /**
@@ -169,7 +169,7 @@ public class ChatClient {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    redirectServer = new RedirectServer(serverAddress);
+                    RedirectServer redirectServer = new RedirectServer(serverAddress);
                 } catch (Exception ex) {
                     Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -263,7 +263,7 @@ public class ChatClient {
                 
                 Socket newSocket = new Socket();
                 newSocket.setSoTimeout(6000);
-                newSocket.connect(new InetSocketAddress(IPToConnectTo, PORT), 2000);
+                newSocket.connect(new InetSocketAddress(IPToConnectTo, PORT), 6000);
                 Scanner tempIn = new Scanner(newSocket.getInputStream());
                 if (tempIn.hasNextLine()) {
                     serverAddress = IPToConnectTo;
