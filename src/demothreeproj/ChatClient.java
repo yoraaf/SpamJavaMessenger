@@ -15,8 +15,11 @@ import java.awt.TextField;
 import java.awt.event.WindowEvent;
 import java.net.ConnectException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.net.SocketOptions;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -61,7 +64,7 @@ public class ChatClient {
     private ArrayList<String> memberIPs = new ArrayList<>();
     private String[] ipArray;
     private RedirectServer redirectServer;
-    
+
     /**
      * Constructs the client by laying out the GUI and registering a listener
      * with the textfield so that pressing Return in the listener sends the
@@ -139,7 +142,7 @@ public class ChatClient {
     }
 
     private void makeServer() {
-        
+
         Thread t = new Thread(new Runnable() { //instead of passing this a runnable, we're defining it inside the parameter 
             public void run() {
                 try {
@@ -186,9 +189,9 @@ public class ChatClient {
                 IPToConnectTo = IPField.getText();
                 System.out.println("username: " + usernameField.getText());
                 System.out.println("IP: " + IPField.getText());
-                if(username == null || username.isEmpty() || username.contains(";") || username.contains("~")){
+                if (username == null || username.isEmpty() || username.contains(";") || username.contains("~")) {
                     JOptionPane.showMessageDialog(null, "Please enter a name that doesn't contain '~' or ';'");
-                }else{
+                } else {
                     break;
                 }
             } else if (result == JOptionPane.CLOSED_OPTION) {
@@ -200,13 +203,14 @@ public class ChatClient {
         // Send on enter then clear to prepare for next message
     }
 
-    private void run() throws IOException {
-        try {
+    private void run() throws Exception {
+        try { //doesn't seem really necesarry
 
             Socket socket = new Socket(serverAddress, PORT);
+            //s1.setSoTimeout(200);
+            //s1.connect(new InetSocketAddress("192.168.1." + i, 1254), 200);
             in = new Scanner(socket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);
-
             while (in.hasNextLine()) {
                 String line = in.nextLine();
                 System.out.println(line);
@@ -231,26 +235,49 @@ public class ChatClient {
                     updateMemberList(line.substring(8));
                 }
             }
+
         } finally {
             //frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-            
             RedirectServer.closeServer();
             System.out.println("");
+            for (int i = 1; i < ipArray.length; i++) {
+                String IPToConnectTo = ipArray[i];
+                if(ipArray[i].equals(localIP)){
+                    IPToConnectTo = "127.0.0.1";
+                    makeServer();
+                }
+                TimeUnit.SECONDS.sleep(1);
+                Socket newSocket = new Socket();
+                newSocket.setSoTimeout(1000);
+                newSocket.connect(new InetSocketAddress(IPToConnectTo, PORT), 2000);
+                Scanner tempIn = new Scanner(newSocket.getInputStream());
+                if (tempIn.hasNextLine()) {
+                    serverAddress = IPToConnectTo;
+                    run();
+                    break;
+                }
+            }
         }
+    }
+
+    private void processConnection() throws IOException {
+        //while (in.hasNextLine()) {
+
+        //}
     }
 
     private void updateMemberList(String str) {
         String[] members = str.split("~");
         String listWithReturn = "";
         ipArray = new String[members.length];
-        
-        for (int i =0;i<members.length;i++) {
+
+        for (int i = 0; i < members.length; i++) {
             ipArray[i] = members[i].split(";")[1]; //get the i-th member, split this, and get the second element, which is the IP
             listWithReturn += members[i] + "\n";
-            System.out.println(i+": "+ipArray[i]);
+            System.out.println(i + ": " + ipArray[i]);
         }
-        
-        listWithReturn=listWithReturn.replace(";", "    ");
+
+        listWithReturn = listWithReturn.replace(";", "    ");
         membersListText.setText(listWithReturn);
         membersListText.setFont(MainClass.listDefFont);
     }
