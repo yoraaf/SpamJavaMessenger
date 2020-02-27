@@ -3,6 +3,7 @@
  */
 package demothreeproj;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -27,40 +28,43 @@ public class RedirectServer {
     private static String IP;
     private static boolean serverRunning = true;
     private static ServerSocket listener;
-    private static RedirectServer thing;
 
     public RedirectServer(String arg) {
-        thing = this;
         System.out.println("Redirect server is running to: " + arg);
         IP = arg;
         ExecutorService pool = Executors.newFixedThreadPool(500);
         try {
             listener = new ServerSocket(PORT);
-            while (serverRunning) {
+            while (serverRunning()) { //check if the server has been closed 
                 try {
                     pool.execute(new Handler(listener.accept()));
                 } catch (SocketException e) {
                 }
             }
+            serverRunning = true; //set back to true for when a new server is made
 
         } catch (Exception ex) {
             Logger.getLogger(RedirectServer.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
-
-    public static void closeServer() {
-        serverRunning = false;
-        try {
-            listener.close();
-        } catch (Exception ex) {
-
-        }
-        System.out.println("Fuck this");
-
+    
+    private synchronized boolean serverRunning() {
+        return this.serverRunning;
     }
 
-    public void closeThing() {
+    
+    public static void closeServer() {
+        serverRunning = false;
+        
+        try {
+            listener.close();
+        } catch (IOException ex) {
+            Logger.getLogger(RedirectServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        System.out.println("Fuck this");
+
     }
 
     private static class Handler implements Runnable {
@@ -78,8 +82,10 @@ public class RedirectServer {
             try {
                 in = new Scanner(socket.getInputStream());
                 out = new PrintWriter(socket.getOutputStream(), true);
-
-                out.println("REDIRECT " + IP);
+                String output = "REDIRECT " + IP;
+                System.out.println("R-OUTPUT>"+output);
+                out.println(output);
+                System.out.println("After output");
             } catch (Exception e) {
                 System.out.println(e);
             }
