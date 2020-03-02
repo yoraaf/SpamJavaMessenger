@@ -8,9 +8,11 @@ import java.net.Socket;
 import java.util.Scanner;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 import static java.awt.Font.PLAIN;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.TextField;
 import java.awt.event.WindowEvent;
 import java.net.ConnectException;
@@ -24,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -58,8 +61,9 @@ public class ChatClient {
     private JTextField textField = new JTextField(50);
     private String username;
     //String IPToConnectTo;
-
-    private JTextArea messageArea = new JTextArea(16, 50);
+    
+    private JButton fuckRaaf = new JButton();
+    private JTextArea messageArea = new JTextArea(16,50);
     private JScrollPane scrollPane;
     private String localIP = "";
     private ArrayList<String> memberIPs = new ArrayList<>();
@@ -101,27 +105,32 @@ public class ChatClient {
             }
 
         } catch (ConnectException ex) { //this checks if that IP accepts connections 
-            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
             isHost = true;
             System.out.println("Server IP not reachable");
             makeServer();
             IPToConnectTo = "127.0.0.1";
             
         } catch (Exception ex) {
-            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
             isHost = true;
             System.out.println("Entered IP has wrong format");
             makeServer();
             IPToConnectTo = "127.0.0.1";
 
         }
+        
         serverAddress = IPToConnectTo;
         textField.setFont(MainClass.chatDefFont);
         messageArea.setFont(MainClass.chatDefFont);
         membersListFrame.setFont(MainClass.listDefFont);
+        fuckRaaf.setText("→");
+        fuckRaaf.setPreferredSize(new Dimension(20, 15));
+        fuckRaaf.setMargin(new Insets(1,1,1,1));
         System.out.println("test");
         textField.setEditable(false);
         messageArea.setEditable(false);
+        frame.getContentPane().add(fuckRaaf, BorderLayout.EAST); 
         frame.getContentPane().add(textField, BorderLayout.SOUTH);
         scrollPane = new JScrollPane(messageArea);
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -138,7 +147,13 @@ public class ChatClient {
         textField.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 out.println(textField.getText());
-                textField.setText("");
+                textField.setText(""); 
+            }
+        });
+        //This checks for when the members list is requested
+        fuckRaaf.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                membersListFrame.setVisible(true);
             }
         });
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -149,7 +164,7 @@ public class ChatClient {
             Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     private void makeServer() {
 
         Thread t = new Thread(new Runnable() { //instead of passing this a runnable, we're defining it inside the parameter 
