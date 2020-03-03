@@ -32,8 +32,9 @@ import java.util.logging.Logger;
  * better logging. Another is to accept a lot of fun commands, like Slack.
  */
 public class ChatServer {
-    private static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");  
-    
+
+    private static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
+
     private static final int PORT = 59002;
     private static ArrayList<String> userData = new ArrayList<String>();
 
@@ -91,33 +92,30 @@ public class ChatServer {
                 while (true) {
                     out.println("SUBMITNAME");
                     name = in.nextLine();
-                    if (name == null ||name.isEmpty()) {
+                    if (name == null || name.isEmpty()) {
                         return;
                     }
                     synchronized (names) {
                         if (!name.isEmpty() && !names.contains(name)) {
                             names.add(name);
+                            clientIP = socket.getInetAddress().getHostAddress();
+                            clientPort = socket.getLocalPort();
+                            if (clientIP.equals("127.0.0.1")) {
+                                clientIP = InetAddress.getLocalHost().getHostAddress();
+                                userData.add("(C) " + name + ";" + clientIP + ";" + clientPort);
+                                hostPositionInArray = userData.size() - 1;
+                            } else {
+                                userData.add(name + ";" + clientIP + ";" + clientPort);
+                            }
+
+                            out.println("NAMEACCEPTED " + name);
+                            broadcastToAll("MESSAGE " + getTime() + name + " has joined");
+                            writers.add(out);
+                            updateMembers();
                             break;
                         }
                     }
                 }
-                clientIP = socket.getInetAddress().getHostAddress();
-                clientPort = socket.getLocalPort();
-                if(clientIP.equals("127.0.0.1")){
-                    clientIP = InetAddress.getLocalHost().getHostAddress();
-                    userData.add("(C) "+name + ";" + clientIP + ";" + clientPort);
-                    hostPositionInArray = userData.size()-1;
-                } else{
-                    userData.add(name + ";" + clientIP + ";" + clientPort);
-                }
-                
-                // Now that a successful name has been chosen, add the socket's print writer
-                // to the set of all writers so this client can receive broadcast messages.
-                // But BEFORE THAT, let everyone else know that the new person has joined!
-                out.println("NAMEACCEPTED " + name);
-                broadcastToAll("MESSAGE " +getTime()+ name + " has joined");
-                writers.add(out);
-                updateMembers();
 
                 // Accept messages from this client and broadcast them.
                 while (true) {
@@ -125,7 +123,7 @@ public class ChatServer {
 //                    if (input.toLowerCase().startsWith("/quit")) {
 //                        return;
 //                    }
-                    broadcastToAll("MESSAGE " +getTime()+ name + ": " + input);
+                    broadcastToAll("MESSAGE " + getTime() + name + ": " + input);
                 }
             } catch (Exception e) {
                 System.out.println(e);
@@ -137,12 +135,12 @@ public class ChatServer {
                     System.out.println(name + " is leaving");
                     names.remove(name);
                     for (String member : userData) {
-                        if(member.contains(name)){
+                        if (member.contains(name)) {
                             userData.remove(member);
                             break;
                         }
                     }
-                    broadcastToAll("MESSAGE "+getTime() + name + " has left");
+                    broadcastToAll("MESSAGE " + getTime() + name + " has left");
                     try {
                         updateMembers();
                     } catch (UnknownHostException ex) {
@@ -164,8 +162,8 @@ public class ChatServer {
 
         private void updateMembers() throws UnknownHostException {
             String serverIP = InetAddress.getLocalHost().getHostAddress();
-            for(int i = 0; i<userData.size();i++){
-                if(userData.get(i).contains(serverIP)){
+            for (int i = 0; i < userData.size(); i++) {
+                if (userData.get(i).contains(serverIP)) {
                     Collections.swap(userData, i, 0);
                     break;
                 }
@@ -179,8 +177,9 @@ public class ChatServer {
 
             broadcastToAll("MEMBERS " + membersString);
         }
-        private String getTime(){
-            return "["+dtf.format(LocalTime.now())+"] ";
+
+        private String getTime() {
+            return "[" + dtf.format(LocalTime.now()) + "] ";
         }
     }
 }
