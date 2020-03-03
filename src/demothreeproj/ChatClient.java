@@ -235,14 +235,16 @@ public class ChatClient {
             //s1.connect(new InetSocketAddress("192.168.1." + i, 1254), 200);
             in = new Scanner(socket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);
+            int submitnameCounter = 0;
             while (in.hasNextLine()) {
                 String line = in.nextLine();
                 System.out.println(line);
                 if (line.startsWith("SUBMITNAME")) {
-                    if (!isHost) {
-                        makeRedirectServer();
+                    if(submitnameCounter>0){
+                        username = JOptionPane.showInputDialog("Username taken. Try again.");
                     }
                     out.println(username);
+                    submitnameCounter++;
                 } else if (line.startsWith("REDIRECT")) {
                     //if the IP isn't the host it will tell us the host IP. Connect to this IP
                     //and redefine socket, in and out 
@@ -253,6 +255,9 @@ public class ChatClient {
                     run();
                     //makeRedirectServer();
                 } else if (line.startsWith("NAMEACCEPTED")) {
+                    if (!isHost) {
+                        makeRedirectServer();
+                    }
                     this.frame.setTitle("Spam - " + line.substring(13) + " " + localIP);
                     textField.setEditable(true);
                 } else if (line.startsWith("MESSAGE")) {
