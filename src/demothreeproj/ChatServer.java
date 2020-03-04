@@ -40,10 +40,10 @@ public class ChatServer {
 
     // All client names, so we can check for duplicates upon registration.
     private static Set<String> names = new HashSet<>();
-    private static int hostPositionInArray = 0;
 
     // The set of all the print writers for all the clients, used for broadcast.
     private static Set<PrintWriter> writers = new HashSet<>();
+    private static ArrayList<PrintWriter> writerList = new ArrayList<>();
 
     public ChatServer() throws Exception {
         System.out.println("The chat server is running...");
@@ -103,7 +103,6 @@ public class ChatServer {
                             if (clientIP.equals("127.0.0.1")) {
                                 clientIP = InetAddress.getLocalHost().getHostAddress();
                                 userData.add("(C) " + name + ";" + clientIP + ";" + clientPort);
-                                hostPositionInArray = userData.size() - 1;
                             } else {
                                 userData.add(name + ";" + clientIP + ";" + clientPort);
                             }
@@ -111,6 +110,7 @@ public class ChatServer {
                             out.println("NAMEACCEPTED " + name);
                             broadcastToAll("MESSAGE " + getTime() + name + " has joined");
                             writers.add(out);
+                            writerList.add(out);
                             updateMembers();
                             break;
                         }
@@ -130,6 +130,7 @@ public class ChatServer {
             } finally {
                 if (out != null) {
                     writers.remove(out);
+                    writerList.remove(out);
                 }
                 if (name != null) {
                     System.out.println(name + " is leaving");
@@ -165,6 +166,7 @@ public class ChatServer {
             for (int i = 0; i < userData.size(); i++) {
                 if (userData.get(i).contains(serverIP)) {
                     Collections.swap(userData, i, 0);
+                    Collections.swap(writerList, i, 0);
                     break;
                 }
             }

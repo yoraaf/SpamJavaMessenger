@@ -62,7 +62,7 @@ public class ChatClient {
     private String username;
     //String IPToConnectTo;
     
-    private JButton fuckRaaf = new JButton();
+    private JButton membersListButton = new JButton();
     private JTextArea messageArea = new JTextArea(16,50);
     private JScrollPane scrollPane;
     private String localIP = "";
@@ -124,13 +124,13 @@ public class ChatClient {
         textField.setFont(MainClass.chatDefFont);
         messageArea.setFont(MainClass.chatDefFont);
         membersListFrame.setFont(MainClass.listDefFont);
-        fuckRaaf.setText("→");
-        fuckRaaf.setPreferredSize(new Dimension(20, 15));
-        fuckRaaf.setMargin(new Insets(1,1,1,1));
+        membersListButton.setText("→");
+        membersListButton.setPreferredSize(new Dimension(20, 15));
+        membersListButton.setMargin(new Insets(1,1,1,1));
         System.out.println("test");
         textField.setEditable(false);
         messageArea.setEditable(false);
-        frame.getContentPane().add(fuckRaaf, BorderLayout.EAST); 
+        frame.getContentPane().add(membersListButton, BorderLayout.EAST); 
         frame.getContentPane().add(textField, BorderLayout.SOUTH);
         scrollPane = new JScrollPane(messageArea);
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -151,7 +151,7 @@ public class ChatClient {
             }
         });
         //This checks for when the members list is requested
-        fuckRaaf.addActionListener(new ActionListener() {
+        membersListButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
                 membersListFrame.setVisible(true);
             }
