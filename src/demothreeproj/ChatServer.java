@@ -122,7 +122,8 @@ public class ChatServer {
                     String input = in.nextLine();
                     String intendedUsr = "";
                     if (input.startsWith("[") && input.contains("]")) {
-                        intendedUsr = intendedUsr.substring(intendedUsr.indexOf('['));
+                        System.out.println("");
+                        intendedUsr = input.substring(input.indexOf('[')+1);
                         intendedUsr = intendedUsr.substring(0, intendedUsr.indexOf(']'));
                         System.out.println(name + " sending PM to " + intendedUsr);
                         for (String user : userData) { //this loop goes through al the user data
@@ -131,7 +132,8 @@ public class ChatServer {
                             if (userName.equals(intendedUsr)) { //here it checks if the user name is equal to the intended user
                                 int userIndex = userData.indexOf(user); //get index
                                 PrintWriter wrt = writerList.get(userIndex);
-                                wrt.println(input);
+                                wrt.println("MESSAGE " + getTime() + name + ": " +input);
+                                
                             }
                         }
                     }else{
