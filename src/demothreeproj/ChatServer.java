@@ -120,10 +120,27 @@ public class ChatServer {
                 // Accept messages from this client and broadcast them.
                 while (true) {
                     String input = in.nextLine();
+                    String intendedUsr = "";
+                    if (input.startsWith("[") && input.contains("]")) {
+                        intendedUsr = intendedUsr.substring(intendedUsr.indexOf('['));
+                        intendedUsr = intendedUsr.substring(0, intendedUsr.indexOf(']'));
+                        System.out.println(name + " sending PM to " + intendedUsr);
+                        for (String user : userData) { //this loop goes through al the user data
+                            //here it singles out the name from the data
+                            String userName = user.substring(0, user.indexOf(';'));
+                            if (userName.equals(intendedUsr)) { //here it checks if the user name is equal to the intended user
+                                int userIndex = userData.indexOf(user); //get index
+                                PrintWriter wrt = writerList.get(userIndex);
+                                wrt.println(input);
+                            }
+                        }
+                    }else{
+                        broadcastToAll("MESSAGE " + getTime() + name + ": " + input);
+                    }
 //                    if (input.toLowerCase().startsWith("/quit")) {
 //                        return;
 //                    }
-                    broadcastToAll("MESSAGE " + getTime() + name + ": " + input);
+                    
                 }
             } catch (Exception e) {
                 System.out.println(e);
