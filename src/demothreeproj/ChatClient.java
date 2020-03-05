@@ -39,7 +39,7 @@ import javax.swing.JTextField;
  * When the server sends a line beginning with "MESSAGE" then all characters
  * following this string should be displayed in its message area.
  */
-public class ChatClient {
+public final class ChatClient {
 
     private static final int PORT = 59002;
 
@@ -110,8 +110,29 @@ public class ChatClient {
             IPToConnectTo = "127.0.0.1";
 
         }
-        
         serverAddress = IPToConnectTo;
+        userInterface();
+        
+
+        textField.addActionListener((ActionEvent e) -> {
+            out.println(textField.getText());
+            textField.setText("");
+        });
+        //This checks for when the members list is requested
+        membersListButton.addActionListener((ActionEvent e) -> {
+            membersListFrame.setVisible(true);
+        });
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+        try {
+            run();
+        } catch (Exception ex) {
+            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void userInterface() {
+        //main chat window   
         textField.setFont(MainClass.chatDefFont);
         messageArea.setFont(MainClass.chatDefFont);
         membersListFrame.setFont(MainClass.listDefFont);
@@ -128,57 +149,35 @@ public class ChatClient {
         frame.pack();
         frame.setIconImage(MainClass.iconImage.getImage());
 
+        //members window
         membersListText.setEditable(false);
         membersListFrame.add(new JScrollPane(membersListText));
         membersListFrame.setVisible(true);
         membersListFrame.setSize(400, frame.getHeight());
         membersListFrame.setLocation(frame.getX() + frame.getWidth(), frame.getY()); //make it appear next to the chat window instaed of behind
         membersListFrame.setIconImage(MainClass.iconImage.getImage());
-
-        textField.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                out.println(textField.getText());
-                textField.setText(""); 
-            }
-        });
-        //This checks for when the members list is requested
-        membersListButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
-                membersListFrame.setVisible(true);
-            }
-        });
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-        try {
-            run();
-        } catch (Exception ex) {
-            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
     
     private void makeServer() {
 
-        Thread t = new Thread(new Runnable() { //instead of passing this a runnable, we're defining it inside the parameter 
-            public void run() {
-                try {
-                    ChatServer server = new ChatServer();
-                } catch (Exception ex) {
-                    Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        Thread t = new Thread(() -> {
+            try {
+                ChatServer server = new ChatServer();
+            } catch (Exception ex) {
+                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
             }
-        });
+        } //instead of passing this a runnable, we're defining it inside the parameter
+        );
         t.start();
         JOptionPane.showMessageDialog(null, "You are the coordinator");
     }
 
     private void makeRedirectServer() {
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    RedirectServer redirectServer = new RedirectServer(serverAddress);
-                } catch (Exception ex) {
-                    Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        Thread t = new Thread(() -> {
+            try {
+                RedirectServer redirectServer = new RedirectServer(serverAddress);
+            } catch (Exception ex) {
+                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
         t.start();
@@ -204,8 +203,8 @@ public class ChatClient {
                 IPToConnectTo = IPField.getText();
                 System.out.println("username: " + usernameField.getText());
                 System.out.println("IP: " + IPField.getText());
-                if (username == null || username.isEmpty() || username.contains(";") || username.contains("~")) {
-                    JOptionPane.showMessageDialog(null, "Please enter a name that doesn't contain '~' or ';'");
+                if (username == null || username.isEmpty() || username.contains(";") || username.contains("~") || username.contains("[") || username.contains("]")){
+                    JOptionPane.showMessageDialog(null, "Please enter a name that doesn't contain '~', ';', '[' or ']'");
                 } else {
                     break;
                 }

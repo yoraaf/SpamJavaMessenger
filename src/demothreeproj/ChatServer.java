@@ -92,9 +92,9 @@ public class ChatServer {
                 while (true) {
                     out.println("SUBMITNAME");
                     name = in.nextLine();
-                    if (name == null || name.isEmpty()) {
-                        return;
-                    }
+//                    if (name == null || name.isEmpty()) {
+//                        return;
+//                    }
                     synchronized (names) {
                         if (!name.isEmpty() && !names.contains(name)) {
                             names.add(name);
