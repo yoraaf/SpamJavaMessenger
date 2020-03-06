@@ -27,18 +27,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-/**
- * A simple Swing-based client for the chat server. Graphically it is a frame
- * with a text field for entering messages and a textarea to see the whole
- * dialog. test The client follows the following Chat Protocol. When the server
- * sends "SUBMITNAME" the client replies with the desired screen name. The
- * server will keep sending "SUBMITNAME" requests as long as the client submits
- * screen names that are already in use. When the server sends a line beginning
- * with "NAMEACCEPTED" the client is now allowed to start sending the server
- * arbitrary strings to be broadcast to all chatters connected to the server.
- * When the server sends a line beginning with "MESSAGE" then all characters
- * following this string should be displayed in its message area.
- */
+
 public final class ChatClient {
 
     private static final int PORT = 59002;
@@ -46,30 +35,21 @@ public final class ChatClient {
     private String serverAddress;
     private Scanner in;
     private PrintWriter out;
-    private JFrame frame = new JFrame("Spam");
-    private JFrame membersListFrame = new JFrame("Members");
-    private JTextArea membersListText = new JTextArea(16, 20);
-    private JTextField textField = new JTextField(50);
+   
     private String username;
     //String IPToConnectTo;
 
-    private JButton membersListButton = new JButton();
-    private JTextArea messageArea = new JTextArea(16, 50);
-    private JScrollPane scrollPane;
+
     private String localIP = "";
     private ArrayList<String> memberIPs = new ArrayList<>();
     private String[] ipArray;
     //private RedirectServer redirectServer;
     private boolean isHost = false;
+    private GUI gui;
 
-    /**
-     * Constructs the client by laying out the GUI and registering a listener
-     * with the textfield so that pressing Return in the listener sends the
-     * textfield contents to the server. Note however that the textfield is
-     * initially NOT editable, and only becomes editable AFTER the client
-     * receives the NAMEACCEPTED message from the server.
-     */
+
     public ChatClient() {
+
         String[] userNameIP = startPopup();
         String IPToConnectTo = userNameIP[1];
         username = userNameIP[0];
@@ -111,62 +91,31 @@ public final class ChatClient {
 
         }
         serverAddress = IPToConnectTo;
-        userInterface();
+        //userInterface();
+        gui = new GUI(this);
 
-        textField.addActionListener((ActionEvent e) -> {
-            out.println(textField.getText());
-            textField.setText("");
-        });
         //This checks for when the members list is requested
-        membersListButton.addActionListener((ActionEvent e) -> {
-            membersListFrame.setVisible(true);
-        });
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
+        
         try {
             run();
         } catch (Exception ex) {
             Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
 
-    public void userInterface() {
-        //main chat window   
-        textField.setFont(MainClass.chatDefFont);
-        messageArea.setFont(MainClass.chatDefFont);
-        membersListFrame.setFont(MainClass.listDefFont);
-        membersListButton.setText("→");
-        membersListButton.setPreferredSize(new Dimension(20, 15));
-        membersListButton.setMargin(new Insets(1, 1, 1, 1));
-        System.out.println("test");
-        textField.setEditable(false);
-        messageArea.setEditable(false);
-        frame.getContentPane().add(membersListButton, BorderLayout.EAST);
-        frame.getContentPane().add(textField, BorderLayout.SOUTH);
-        scrollPane = new JScrollPane(messageArea);
-        frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
-        frame.pack();
-        frame.setIconImage(MainClass.iconImage.getImage());
-
-        //members window
-        membersListText.setEditable(false);
-        membersListFrame.add(new JScrollPane(membersListText));
-        membersListFrame.setVisible(true);
-        membersListFrame.setSize(400, frame.getHeight());
-        membersListFrame.setLocation(frame.getX() + frame.getWidth(), frame.getY()); //make it appear next to the chat window instaed of behind
-        membersListFrame.setIconImage(MainClass.iconImage.getImage());
-    }
 
     private void makeServer() {
 
-        Thread t = new Thread(() -> {
-            try {
-                ChatServer server = new ChatServer();
-            } catch (Exception ex) {
-                Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    ChatServer server = new ChatServer();
+                } catch (Exception ex) {
+                    Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-        } //instead of passing this a runnable, we're defining it inside the parameter
-        );
+        });
         t.start();
         JOptionPane.showMessageDialog(null, "You are the coordinator");
     }
@@ -202,8 +151,8 @@ public final class ChatClient {
                 IPToConnectTo = IPField.getText();
                 System.out.println("username: " + usernameField.getText());
                 System.out.println("IP: " + IPField.getText());
-                if (username == null || username.isEmpty() || username.contains(";") || username.contains("~") || username.contains("[") || username.contains("]")) {
-                    JOptionPane.showMessageDialog(null, "Please enter a name that doesn't contain '~', ';', '[' or ']'");
+                if (username == null || username.isEmpty() || username.contains(";") || username.contains("~") || username.contains("[") || username.contains("]") || username.contains("(")) {
+                    JOptionPane.showMessageDialog(null, "Please enter a name that doesn't contain '~', ';', '(', '[' or ']'");
                 } else {
                     break;
                 }
@@ -232,13 +181,13 @@ public final class ChatClient {
                     if (submitnameCounter > 0) {
                         while (true) {
                             username = JOptionPane.showInputDialog("Username taken. Try again.");
-                            
-                            if (username == null || username.isEmpty() || username.contains(";") || username.contains("~") || username.contains("[") || username.contains("]")) {
+
+                            if (username == null || username.isEmpty() || username.contains(";") || username.contains("~") || username.contains("[") || username.contains("]") || username.contains("(")) {
                                 JOptionPane.showMessageDialog(null, "Please enter a name that doesn't contain '~', ';', '[' or ']'");
                             } else {
                                 break;
                             }
-                            
+
                         }
                     }
                     out.println(username);
@@ -256,12 +205,10 @@ public final class ChatClient {
                     if (!isHost) {
                         makeRedirectServer();
                     }
-                    this.frame.setTitle("Spam - " + line.substring(13) + " " + localIP);
-                    textField.setEditable(true);
+                    gui.setTitle("Spam - " + line.substring(13) + " " + localIP);
+                    gui.setAllowedToMsg(true); //allows the user to use the message box
                 } else if (line.startsWith("MESSAGE")) {
-                    messageArea.append(line.substring(8) + "\n");
-                    JScrollBar vertical = scrollPane.getVerticalScrollBar();
-                    vertical.setValue(vertical.getMaximum());
+                    gui.addMessage(line.substring(8) + "\n");
                 } else if (line.startsWith("MEMBERS")) {
                     updateMemberList(line.substring(8));
                 }
@@ -292,10 +239,8 @@ public final class ChatClient {
         }
     }
 
-    private void processConnection() throws IOException {
-        //while (in.hasNextLine()) {
-
-        //}
+    public void sendMessage(String msg) {
+        out.println(msg);
     }
 
     private void updateMemberList(String str) {
@@ -310,8 +255,7 @@ public final class ChatClient {
         }
 
         listWithReturn = listWithReturn.replace(";", "    ");
-        membersListText.setText(listWithReturn);
-        membersListText.setFont(MainClass.listDefFont);
+        gui.updateMembersList(listWithReturn);
     }
 
 }
