@@ -52,9 +52,9 @@ public final class ChatClient {
     private JTextField textField = new JTextField(50);
     private String username;
     //String IPToConnectTo;
-    
+
     private JButton membersListButton = new JButton();
-    private JTextArea messageArea = new JTextArea(16,50);
+    private JTextArea messageArea = new JTextArea(16, 50);
     private JScrollPane scrollPane;
     private String localIP = "";
     private ArrayList<String> memberIPs = new ArrayList<>();
@@ -101,7 +101,7 @@ public final class ChatClient {
             System.out.println("Server IP not reachable");
             makeServer();
             IPToConnectTo = "127.0.0.1";
-            
+
         } catch (Exception ex) {
             //Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
             isHost = true;
@@ -112,7 +112,6 @@ public final class ChatClient {
         }
         serverAddress = IPToConnectTo;
         userInterface();
-        
 
         textField.addActionListener((ActionEvent e) -> {
             out.println(textField.getText());
@@ -130,7 +129,7 @@ public final class ChatClient {
             Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void userInterface() {
         //main chat window   
         textField.setFont(MainClass.chatDefFont);
@@ -138,11 +137,11 @@ public final class ChatClient {
         membersListFrame.setFont(MainClass.listDefFont);
         membersListButton.setText("→");
         membersListButton.setPreferredSize(new Dimension(20, 15));
-        membersListButton.setMargin(new Insets(1,1,1,1));
+        membersListButton.setMargin(new Insets(1, 1, 1, 1));
         System.out.println("test");
         textField.setEditable(false);
         messageArea.setEditable(false);
-        frame.getContentPane().add(membersListButton, BorderLayout.EAST); 
+        frame.getContentPane().add(membersListButton, BorderLayout.EAST);
         frame.getContentPane().add(textField, BorderLayout.SOUTH);
         scrollPane = new JScrollPane(messageArea);
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -157,7 +156,7 @@ public final class ChatClient {
         membersListFrame.setLocation(frame.getX() + frame.getWidth(), frame.getY()); //make it appear next to the chat window instaed of behind
         membersListFrame.setIconImage(MainClass.iconImage.getImage());
     }
-    
+
     private void makeServer() {
 
         Thread t = new Thread(() -> {
@@ -203,7 +202,7 @@ public final class ChatClient {
                 IPToConnectTo = IPField.getText();
                 System.out.println("username: " + usernameField.getText());
                 System.out.println("IP: " + IPField.getText());
-                if (username == null || username.isEmpty() || username.contains(";") || username.contains("~") || username.contains("[") || username.contains("]")){
+                if (username == null || username.isEmpty() || username.contains(";") || username.contains("~") || username.contains("[") || username.contains("]")) {
                     JOptionPane.showMessageDialog(null, "Please enter a name that doesn't contain '~', ';', '[' or ']'");
                 } else {
                     break;
@@ -230,8 +229,17 @@ public final class ChatClient {
                 String line = in.nextLine();
                 System.out.println(line);
                 if (line.startsWith("SUBMITNAME")) {
-                    if(submitnameCounter>0){
-                        username = JOptionPane.showInputDialog("Username taken. Try again.");
+                    if (submitnameCounter > 0) {
+                        while (true) {
+                            username = JOptionPane.showInputDialog("Username taken. Try again.");
+                            
+                            if (username == null || username.isEmpty() || username.contains(";") || username.contains("~") || username.contains("[") || username.contains("]")) {
+                                JOptionPane.showMessageDialog(null, "Please enter a name that doesn't contain '~', ';', '[' or ']'");
+                            } else {
+                                break;
+                            }
+                            
+                        }
                     }
                     out.println(username);
                     submitnameCounter++;
@@ -270,7 +278,7 @@ public final class ChatClient {
                     IPToConnectTo = "127.0.0.1";
                     makeServer();
                 }
-                
+
                 Socket newSocket = new Socket();
                 newSocket.setSoTimeout(6000);
                 newSocket.connect(new InetSocketAddress(IPToConnectTo, PORT), 6000);
