@@ -1,30 +1,19 @@
 package demothreeproj;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 
@@ -35,28 +24,20 @@ public final class ChatClient {
     private String serverAddress;
     private Scanner in;
     private PrintWriter out;
-   
     private String username;
-    //String IPToConnectTo;
-
-
     private String localIP = "";
-    private ArrayList<String> memberIPs = new ArrayList<>();
     private String[] ipArray;
-    //private RedirectServer redirectServer;
     private boolean isHost = false;
     private GUI gui;
 
 
     public ChatClient() {
-
         String[] userNameIP = startPopup();
-        String IPToConnectTo = userNameIP[1];
+        String IPToConnectTo = userNameIP[1]; //this is a temp var 
         username = userNameIP[0];
 
         try {
             localIP = InetAddress.getLocalHost().getHostAddress();
-
             Socket socket = new Socket(IPToConnectTo, PORT);
             Scanner tempIn = new Scanner(socket.getInputStream());
             String line = tempIn.nextLine();
@@ -65,10 +46,8 @@ public final class ChatClient {
                 socket = new Socket(serverAddress, PORT);
                 in = new Scanner(socket.getInputStream());
                 out = new PrintWriter(socket.getOutputStream(), true);
-                //makeRedirectServer();
             } else if (line.contains("SUBMITNAME")) {
                 serverAddress = IPToConnectTo;
-                //makeRedirectServer();
             } else if (!line.contains("SUBMITNAME")) { //else, don't make your own server and join the IP entered.
                 isHost = true;
                 makeServer(); //make your own server if the one entered doesn't exist
@@ -91,10 +70,7 @@ public final class ChatClient {
 
         }
         serverAddress = IPToConnectTo;
-        //userInterface();
         gui = new GUI(this);
-
-        //This checks for when the members list is requested
         
         try {
             run();
@@ -120,10 +96,10 @@ public final class ChatClient {
         JOptionPane.showMessageDialog(null, "You are the coordinator");
     }
 
-    private void makeRedirectServer() {
+    private void makeRedirectServer(String serverIP) {
         Thread t = new Thread(() -> {
             try {
-                RedirectServer redirectServer = new RedirectServer(serverAddress);
+                RedirectServer redirectServer = new RedirectServer(serverIP);
             } catch (Exception ex) {
                 Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -167,10 +143,7 @@ public final class ChatClient {
 
     private void run() throws Exception {
         try { //doesn't seem really necesarry
-
             Socket socket = new Socket(serverAddress, PORT);
-            //s1.setSoTimeout(200);
-            //s1.connect(new InetSocketAddress("192.168.1." + i, 1254), 200);
             in = new Scanner(socket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);
             int submitnameCounter = 0;
@@ -187,7 +160,6 @@ public final class ChatClient {
                             } else {
                                 break;
                             }
-
                         }
                     }
                     out.println(username);
@@ -196,14 +168,10 @@ public final class ChatClient {
                     //if the IP isn't the host it will tell us the host IP. Connect to this IP
                     //and redefine socket, in and out 
                     serverAddress = line.substring(9);
-//                    socket = new Socket(serverAddress, PORT);
-//                    in = new Scanner(socket.getInputStream());
-//                    out = new PrintWriter(socket.getOutputStream(), true);
                     run();
-                    //makeRedirectServer();
                 } else if (line.startsWith("NAMEACCEPTED")) {
                     if (!isHost) {
-                        makeRedirectServer();
+                        makeRedirectServer(serverAddress);
                     }
                     gui.setTitle("Spam - " + line.substring(13) + " " + localIP);
                     gui.setAllowedToMsg(true); //allows the user to use the message box
@@ -215,7 +183,6 @@ public final class ChatClient {
             }
 
         } finally {
-            //frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
             RedirectServer.closeServer();
             System.out.println("");
             for (int i = 1; i < ipArray.length; i++) {
@@ -257,5 +224,4 @@ public final class ChatClient {
         listWithReturn = listWithReturn.replace(";", "    ");
         gui.updateMembersList(listWithReturn);
     }
-
 }

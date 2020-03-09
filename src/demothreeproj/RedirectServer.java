@@ -62,16 +62,12 @@ public class RedirectServer {
         } catch (IOException ex) {
             Logger.getLogger(RedirectServer.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        System.out.println("Fuck this");
-
+        System.out.println("Closing redirect server");
     }
 
     private static class Handler implements Runnable {
 
-        private String name;
         private Socket socket;
-        private Scanner in;
         private PrintWriter out;
 
         public Handler(Socket socket) {
@@ -80,7 +76,6 @@ public class RedirectServer {
 
         public void run() {
             try {
-                in = new Scanner(socket.getInputStream());
                 out = new PrintWriter(socket.getOutputStream(), true);
                 String output = "REDIRECT " + IP;
                 System.out.println("R-OUTPUT>"+output);

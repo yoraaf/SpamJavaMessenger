@@ -19,18 +19,6 @@ import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/* */
-/**
- * A multithreaded chat room server. When a client connects the server requests
- * a screen name by sending the client the text "SUBMITNAME", and keeps
- * requesting a name until a unique one is received. After a client submits a
- * unique name, the server acknowledges with "NAMEACCEPTED". Then all messages
- * from that client will be broadcast to all other clients that have submitted a
- * unique screen name. The broadcast messages are prefixed with "MESSAGE".
- *
- * This is just a teaching example so it can be enhanced in many ways, e.g.,
- * better logging. Another is to accept a lot of fun commands, like Slack.
- */
 public class ChatServer {
 
     private static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -56,7 +44,7 @@ public class ChatServer {
     }
 
     /**
-     * The client handler task.
+     * The client handler.
      */
     private static class Handler implements Runnable {
 
@@ -67,22 +55,10 @@ public class ChatServer {
         private String clientIP;
         private int clientPort;
 
-        /**
-         * Constructs a handler thread, squirreling away the socket. All the
-         * interesting work is done in the run method. Remember the constructor
-         * is called from the server's main method, so this has to be as short
-         * as possible.
-         */
         public Handler(Socket socket) {
             this.socket = socket;
         }
 
-        /**
-         * Services this thread's client by repeatedly requesting a screen name
-         * until a unique one has been submitted, then acknowledges the name and
-         * registers the output stream for the client in a global set, then
-         * repeatedly gets inputs and broadcasts them.
-         */
         public void run() {
             try {
                 in = new Scanner(socket.getInputStream());
@@ -92,9 +68,6 @@ public class ChatServer {
                 while (true) {
                     out.println("SUBMITNAME");
                     name = in.nextLine();
-//                    if (name == null || name.isEmpty()) {
-//                        return;
-//                    }
                     synchronized (names) {
                         if (!name.isEmpty() && !names.contains(name)) {
                             names.add(name);
@@ -139,10 +112,7 @@ public class ChatServer {
                     }else{
                         broadcastToAll("MESSAGE " + getTime() + name + ": " + input);
                     }
-//                    if (input.toLowerCase().startsWith("/quit")) {
-//                        return;
-//                    }
-                    
+
                 }
             } catch (Exception e) {
                 System.out.println(e);
@@ -169,7 +139,8 @@ public class ChatServer {
                 }
                 try {
                     socket.close();
-                } catch (IOException e) {
+                } catch (Exception e) {
+                    System.out.println("Socket closed");
                 }
             }
         }
@@ -189,7 +160,6 @@ public class ChatServer {
                     break;
                 }
             }
-            //Collections.swap(userData, hostPositionInArray, 0);
             String membersString = "";
             for (String member : userData) {
                 membersString += member + "~";

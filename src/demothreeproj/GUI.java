@@ -55,7 +55,6 @@ public class GUI {
         membersListButton.setText("→");
         membersListButton.setPreferredSize(new Dimension(20, 15));
         membersListButton.setMargin(new Insets(1, 1, 1, 1));
-        System.out.println("test");
         textField.setEditable(false);
         messageArea.setEditable(false);
         frame.getContentPane().add(membersListButton, BorderLayout.EAST);
