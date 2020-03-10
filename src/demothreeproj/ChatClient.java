@@ -17,7 +17,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-
 public final class ChatClient {
 
     private int PORT = 59002;
@@ -31,12 +30,12 @@ public final class ChatClient {
     private boolean isHost = false;
     private GUI gui;
 
-
     public ChatClient() {
-        String[] userNameIP = startPopup();
+        gui = new GUI(this);
+        String[] userNameIP = gui.startPopup();
         String IPToConnectTo = userNameIP[1]; //this is a temp var 
         username = userNameIP[0];
-        PORT = Integer.parseInt(userNameIP[2]); 
+        PORT = Integer.parseInt(userNameIP[2]);
 
         try {
             localIP = InetAddress.getLocalHost().getHostAddress();
@@ -72,16 +71,13 @@ public final class ChatClient {
 
         }
         serverAddress = IPToConnectTo;
-        gui = new GUI(this);
-        
+
         try {
             run();
         } catch (Exception ex) {
             Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-
 
     private void makeServer(int port) {
 
@@ -107,46 +103,6 @@ public final class ChatClient {
             }
         });
         t.start();
-    }
-
-    private static String[] startPopup() {
-        String username = "";
-        String IPToConnectTo = "";
-        String port = "";
-        JTextField usernameField = new JTextField(5);
-        JTextField IPField = new JTextField(5);
-        JTextField portField = new JTextField(5);
-        portField.setText("59001");
-
-        JPanel inputFields = new JPanel();
-        inputFields.setLayout(new GridLayout(0,2));
-        inputFields.add(new JLabel("Username: "));
-        inputFields.add(usernameField);
-        inputFields.add(new JLabel("Server IP: "));
-        inputFields.add(IPField);
-        inputFields.add(new JLabel("Server PORT: "));
-        inputFields.add(portField);
-        while (true) {
-            int result = JOptionPane.showConfirmDialog(null, inputFields,
-                    "Please enter username and IP", JOptionPane.PLAIN_MESSAGE);
-            if (result == JOptionPane.OK_OPTION) {
-                username = usernameField.getText();
-                IPToConnectTo = IPField.getText();
-                port = portField.getText();
-                System.out.println("username: " + usernameField.getText());
-                System.out.println("IP: " + IPField.getText());
-                if (username == null || username.isEmpty() || username.contains(";") || username.contains("~") || username.contains("[") || username.contains("]") || username.contains("(")) {
-                    JOptionPane.showMessageDialog(null, "Please enter a name that doesn't contain '~', ';', '(', '[' or ']'");
-                } else {
-                    break;
-                }
-            } else if (result == JOptionPane.CLOSED_OPTION) {
-                System.exit(0);
-                break;
-            }
-        }
-        return new String[]{username, IPToConnectTo, port};
-        // Send on enter then clear to prepare for next message
     }
 
     private void run() throws Exception {

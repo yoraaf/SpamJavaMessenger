@@ -7,14 +7,21 @@ package demothreeproj;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 /**
  *
@@ -44,6 +51,17 @@ public class GUI {
         textField.addActionListener((ActionEvent e) -> {
             thisClient.sendMessage(textField.getText());
             textField.setText("");
+        });
+    }
+
+    public GUI() { //this constructor doesn't allow sending messages but makes testing easier
+        userInterface();
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+
+        membersListButton.addActionListener((ActionEvent e) -> {
+            membersListFrame.setVisible(true);
         });
     }
 
@@ -87,8 +105,62 @@ public class GUI {
         JScrollBar vertical = scrollPane.getVerticalScrollBar();
         vertical.setValue(vertical.getMaximum());
     }
-    
-    public void updateMembersList(String list){
+
+    public void updateMembersList(String list) {
         membersListText.setText(list);
+    }
+
+    public String[] startPopup() {
+        String username = "";
+        String IPToConnectTo = "";
+        String port = "";
+        JTextField usernameField = new JTextField(5);
+        JTextField IPField = new JTextField(5);
+        JTextField portField = new JTextField(5);
+        portField.setText("59001");
+        usernameField.addAncestorListener(new AncestorListener() {
+            @Override
+            public void ancestorAdded(AncestorEvent e) {
+                JComponent component = e.getComponent();
+                component.requestFocusInWindow();
+            }
+
+            @Override
+            public void ancestorRemoved(AncestorEvent event) {
+            }
+
+            @Override
+            public void ancestorMoved(AncestorEvent event) {
+            }
+        });
+        JPanel inputFields = new JPanel();
+        inputFields.setLayout(new GridLayout(0, 2));
+        inputFields.add(new JLabel("Username: "));
+        inputFields.add(usernameField);
+        inputFields.add(new JLabel("Server IP: "));
+        inputFields.add(IPField);
+        inputFields.add(new JLabel("Server PORT: "));
+        inputFields.add(portField);
+        while (true) {
+            int result = JOptionPane.showConfirmDialog(null, inputFields,
+                    "Please enter username and IP", JOptionPane.PLAIN_MESSAGE);
+            if (result == JOptionPane.OK_OPTION) {
+                username = usernameField.getText();
+                IPToConnectTo = IPField.getText();
+                port = portField.getText();
+                System.out.println("username: " + usernameField.getText());
+                System.out.println("IP: " + IPField.getText());
+                if (username == null || username.isEmpty() || username.contains(";") || username.contains("~") || username.contains("[") || username.contains("]") || username.contains("(")) {
+                    JOptionPane.showMessageDialog(null, "Please enter a name that doesn't contain '~', ';', '(', '[' or ']'");
+                } else {
+                    break;
+                }
+            } else if (result == JOptionPane.CLOSED_OPTION) {
+                System.exit(0);
+                break;
+            }
+        }
+        return new String[]{username, IPToConnectTo, port};
+        // Send on enter then clear to prepare for next message
     }
 }
