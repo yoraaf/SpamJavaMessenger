@@ -23,7 +23,6 @@ public class ChatServer {
 
     private static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-    private static final int PORT = 59002;
     private static ArrayList<String> userData = new ArrayList<String>();
 
     // All client names, so we can check for duplicates upon registration.
@@ -33,10 +32,10 @@ public class ChatServer {
     private static Set<PrintWriter> writers = new HashSet<>();
     private static ArrayList<PrintWriter> writerList = new ArrayList<>();
 
-    public ChatServer() throws Exception {
+    public ChatServer(int port) throws Exception {
         System.out.println("The chat server is running...");
         ExecutorService pool = Executors.newFixedThreadPool(500);
-        try (ServerSocket listener = new ServerSocket(PORT)) {
+        try (ServerSocket listener = new ServerSocket(port)) {
             while (true) {
                 pool.execute(new Handler(listener.accept()));
             }
@@ -163,9 +162,7 @@ public class ChatServer {
             String membersString = "";
             for (String member : userData) {
                 membersString += member + "~";
-
             }
-
             broadcastToAll("MEMBERS " + membersString);
         }
 

@@ -24,12 +24,13 @@ import java.util.logging.Logger;
  */
 public class RedirectServer {
 
-    private static final int PORT = 59002;
+    private static int PORT = 59002;
     private static String IP;
     private static boolean serverRunning = true;
     private static ServerSocket listener;
 
-    public RedirectServer(String arg) {
+    public RedirectServer(String arg, int port) {
+        PORT = port;
         System.out.println("Redirect server is running to: " + arg);
         IP = arg;
         ExecutorService pool = Executors.newFixedThreadPool(500);

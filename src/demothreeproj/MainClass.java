@@ -14,7 +14,6 @@ import javax.swing.ImageIcon;
  * @author yoraa
  */
 public class MainClass {
-    
     //usually constants would have full caps names, but since this class will only have constants, it's already implied
     public static final Font chatDefFont = new Font("Lucida Sans Typewriter", PLAIN, 15);
     public static final Font listDefFont = new Font("Lucida Sans Typewriter", PLAIN, 12);

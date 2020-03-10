@@ -5,10 +5,11 @@ import java.net.Socket;
 import java.util.Scanner;
 
 import java.awt.GridLayout;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
@@ -19,7 +20,7 @@ import javax.swing.JTextField;
 
 public final class ChatClient {
 
-    private static final int PORT = 59002;
+    private int PORT = 59002;
 
     private String serverAddress;
     private Scanner in;
@@ -35,6 +36,7 @@ public final class ChatClient {
         String[] userNameIP = startPopup();
         String IPToConnectTo = userNameIP[1]; //this is a temp var 
         username = userNameIP[0];
+        PORT = Integer.parseInt(userNameIP[2]); 
 
         try {
             localIP = InetAddress.getLocalHost().getHostAddress();
@@ -50,7 +52,7 @@ public final class ChatClient {
                 serverAddress = IPToConnectTo;
             } else if (!line.contains("SUBMITNAME")) { //else, don't make your own server and join the IP entered.
                 isHost = true;
-                makeServer(); //make your own server if the one entered doesn't exist
+                makeServer(PORT); //make your own server if the one entered doesn't exist
                 IPToConnectTo = "127.0.0.1"; //change the ip to connect to, to the localhost IP
             }
 
@@ -58,14 +60,14 @@ public final class ChatClient {
             //Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
             isHost = true;
             System.out.println("Server IP not reachable");
-            makeServer();
+            makeServer(PORT);
             IPToConnectTo = "127.0.0.1";
 
         } catch (Exception ex) {
             //Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
             isHost = true;
             System.out.println("Entered IP has wrong format");
-            makeServer();
+            makeServer(PORT);
             IPToConnectTo = "127.0.0.1";
 
         }
@@ -81,12 +83,12 @@ public final class ChatClient {
     
 
 
-    private void makeServer() {
+    private void makeServer(int port) {
 
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    ChatServer server = new ChatServer();
+                    ChatServer server = new ChatServer(port);
                 } catch (Exception ex) {
                     Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -96,10 +98,10 @@ public final class ChatClient {
         JOptionPane.showMessageDialog(null, "You are the coordinator");
     }
 
-    private void makeRedirectServer(String serverIP) {
+    private void makeRedirectServer(String serverIP, int port) {
         Thread t = new Thread(() -> {
             try {
-                RedirectServer redirectServer = new RedirectServer(serverIP);
+                RedirectServer redirectServer = new RedirectServer(serverIP, port);
             } catch (Exception ex) {
                 Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -110,21 +112,27 @@ public final class ChatClient {
     private static String[] startPopup() {
         String username = "";
         String IPToConnectTo = "";
+        String port = "";
         JTextField usernameField = new JTextField(5);
         JTextField IPField = new JTextField(5);
+        JTextField portField = new JTextField(5);
+        portField.setText("59001");
 
         JPanel inputFields = new JPanel();
-        inputFields.setLayout(new GridLayout(0, 2));
+        inputFields.setLayout(new GridLayout(0,2));
         inputFields.add(new JLabel("Username: "));
         inputFields.add(usernameField);
         inputFields.add(new JLabel("Server IP: "));
         inputFields.add(IPField);
+        inputFields.add(new JLabel("Server PORT: "));
+        inputFields.add(portField);
         while (true) {
             int result = JOptionPane.showConfirmDialog(null, inputFields,
                     "Please enter username and IP", JOptionPane.PLAIN_MESSAGE);
             if (result == JOptionPane.OK_OPTION) {
                 username = usernameField.getText();
                 IPToConnectTo = IPField.getText();
+                port = portField.getText();
                 System.out.println("username: " + usernameField.getText());
                 System.out.println("IP: " + IPField.getText());
                 if (username == null || username.isEmpty() || username.contains(";") || username.contains("~") || username.contains("[") || username.contains("]") || username.contains("(")) {
@@ -137,7 +145,7 @@ public final class ChatClient {
                 break;
             }
         }
-        return new String[]{username, IPToConnectTo};
+        return new String[]{username, IPToConnectTo, port};
         // Send on enter then clear to prepare for next message
     }
 
@@ -171,7 +179,7 @@ public final class ChatClient {
                     run();
                 } else if (line.startsWith("NAMEACCEPTED")) {
                     if (!isHost) {
-                        makeRedirectServer(serverAddress);
+                        makeRedirectServer(serverAddress, PORT);
                     }
                     gui.setTitle("Spam - " + line.substring(13) + " " + localIP);
                     gui.setAllowedToMsg(true); //allows the user to use the message box
@@ -190,7 +198,7 @@ public final class ChatClient {
                 if (ipArray[i].equals(localIP)) {
                     isHost = true;
                     IPToConnectTo = "127.0.0.1";
-                    makeServer();
+                    makeServer(PORT);
                 }
 
                 Socket newSocket = new Socket();
