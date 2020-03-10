@@ -92,12 +92,14 @@ public class GUI {
         membersListText.setFont(MainClass.listDefFont);
     }
 
-    public void setAllowedToMsg(boolean arg) {
+    public boolean setAllowedToMsg(boolean arg) {
         textField.setEditable(arg);
+        return textField.isEditable();
     }
 
-    public void setTitle(String title) {
+    public String setTitle(String title) {
         frame.setTitle(title);
+        return frame.getTitle();
     }
 
     public void addMessage(String msg) {
@@ -106,8 +108,9 @@ public class GUI {
         vertical.setValue(vertical.getMaximum());
     }
 
-    public void updateMembersList(String list) {
+    public String updateMembersList(String list) {
         membersListText.setText(list);
+        return membersListText.getText();
     }
 
     public String[] startPopup() {
