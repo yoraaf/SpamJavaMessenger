@@ -53,8 +53,7 @@ public class GUI {
             textField.setText("");
         });
     }
-
-    public GUI() { //this constructor doesn't allow sending messages but makes testing easier
+    public GUI() { //this only works for the tests so that they can access the other methods.
         userInterface();
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

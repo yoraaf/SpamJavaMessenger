@@ -5,18 +5,9 @@
  */
 package demothreeproj;
 
-import java.awt.AWTException;
-import java.awt.Robot;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.KeyEvent;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.Before;
 
 /**
@@ -71,37 +62,5 @@ public class GUITest {
         String result = instance.updateMembersList(list);
         Assert.assertEquals(result, list);
     }
-
-    /**
-     * Test of startPopup method, of class GUI.
-     */
-//    @Test
-//    public void testStartPopup() {
-//        
-//        String usernameText = "Henk";
-//        StringSelection stringSelection = new StringSelection(usernameText);
-//        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-//        clipboard.setContents(stringSelection, stringSelection);
-//
-//        try {
-//            Robot robot = new Robot();
-//            robot.keyPress(KeyEvent.VK_H);
-//            robot.keyRelease(KeyEvent.VK_H);
-//            robot.keyPress(KeyEvent.VK_CONTROL);
-//            robot.keyPress(KeyEvent.VK_V);
-//            robot.keyRelease(KeyEvent.VK_V);
-//            robot.keyRelease(KeyEvent.VK_CONTROL);
-//            robot.keyPress(KeyEvent.VK_ENTER);
-//            robot.keyRelease(KeyEvent.VK_ENTER);
-//        } catch (AWTException ex) {
-//            Logger.getLogger(GUITest.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//
-//        System.out.println("startPopup");
-//        String[] expResult = new String[]{usernameText, "", "59001"};
-//        String[] result = instance.startPopup();
-//        Assert.assertArrayEquals(expResult, result);
-//        // TODO review the generated test code and remove the default call to fail.
-//    }
 
 }
