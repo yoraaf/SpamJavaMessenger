@@ -4,19 +4,16 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
-import java.awt.GridLayout;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-
+/**
+ *
+ * @author SPAM
+ */
 public final class ChatClient {
 
     private int PORT = 59002;
@@ -56,14 +53,12 @@ public final class ChatClient {
             }
 
         } catch (ConnectException ex) { //this checks if that IP accepts connections 
-            //Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
             isHost = true;
             System.out.println("Server IP not reachable");
             makeServer(PORT);
             IPToConnectTo = "127.0.0.1";
 
         } catch (Exception ex) {
-            //Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
             isHost = true;
             System.out.println("Entered IP has wrong format");
             makeServer(PORT);
@@ -113,7 +108,7 @@ public final class ChatClient {
             int submitnameCounter = 0;
             while (in.hasNextLine()) {
                 String line = in.nextLine();
-                System.out.println(line);
+                //System.out.println(line);
                 if (line.startsWith("SUBMITNAME")) {
                     if (submitnameCounter > 0) {
                         while (true) {
@@ -148,7 +143,6 @@ public final class ChatClient {
 
         } finally {
             RedirectServer.closeServer();
-            System.out.println("");
             for (int i = 1; i < ipArray.length; i++) {
                 String IPToConnectTo = ipArray[i];
                 if (ipArray[i].equals(localIP)) {

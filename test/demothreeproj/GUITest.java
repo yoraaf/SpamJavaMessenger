@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package demothreeproj;
 
 import org.junit.After;
@@ -12,7 +7,7 @@ import org.junit.Before;
 
 /**
  *
- * @author rv1658f
+ * @author SPAM
  */
 public class GUITest {
 
@@ -34,11 +29,10 @@ public class GUITest {
      */
     @Test
     public void testSetAllowedToMsg() {
-        System.out.println("setAllowedToMsg");
         boolean arg = false;
         boolean result =instance.setAllowedToMsg(arg);
         Assert.assertEquals(arg, result);
-        // TODO review the generated test code and remove the default call to fail.
+        System.out.println("testSetAllowedToMsg: exp "+arg+" res "+result);
     }
 
     /**
@@ -46,10 +40,10 @@ public class GUITest {
      */
     @Test
     public void testSetTitle() {
-        System.out.println("setTitle");
         String title = "This Is A Title";
         String result = instance.setTitle(title);
         Assert.assertEquals(title, result);
+        System.out.println("testSetTitle: exp "+title+" res "+result);
     }
 
     /**
@@ -57,10 +51,10 @@ public class GUITest {
      */
     @Test
     public void testUpdateMembersList() {
-        System.out.println("updateMembersList");
         String list = "Henk    172.0.0.1    59001";
         String result = instance.updateMembersList(list);
         Assert.assertEquals(result, list);
+        System.out.println("testUpdateMembersList: exp "+list+" res "+result);
     }
 
 }

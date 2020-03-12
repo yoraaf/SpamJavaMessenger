@@ -1,13 +1,10 @@
 package demothreeproj;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -18,7 +15,10 @@ import java.util.Scanner;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+/**
+ *
+ * @author SPAM
+ */
 public class ChatServer {
 
     private static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -94,7 +94,6 @@ public class ChatServer {
                     String input = in.nextLine();
                     String intendedUsr = "";
                     if (input.startsWith("[") && input.contains("]")) {
-                        System.out.println("");
                         intendedUsr = input.substring(input.indexOf('[')+1);
                         intendedUsr = intendedUsr.substring(0, intendedUsr.indexOf(']'));
                         System.out.println(name + " sending PM to " + intendedUsr);

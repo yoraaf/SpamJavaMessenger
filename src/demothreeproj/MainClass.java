@@ -11,7 +11,7 @@ import javax.swing.ImageIcon;
 
 /**
  *
- * @author yoraa
+ * @author SPAM
  */
 public class MainClass {
     //usually constants would have full caps names, but since this class will only have constants, it's already implied
@@ -21,6 +21,7 @@ public class MainClass {
 
     public static final ImageIcon iconImage = new ImageIcon(MainClass.class.getResource("img/spam.png"));
     //self made icon
+    
     public static void main(String[] args){
         ChatClient client = new ChatClient();
     }
